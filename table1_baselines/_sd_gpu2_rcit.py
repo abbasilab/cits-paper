@@ -1,0 +1,23 @@
+import numpy as np, sys, os, warnings, csv; warnings.filterwarnings('ignore')
+sys.path.insert(0,os.path.dirname(os.path.abspath(__file__)))
+from sim_scm import simulate_extended
+from glm_spiking_sim import simulate_glm_spiking, directed_cs as gdcs
+from directed_metrics import compute_directed_metrics
+from gpu_cits_lag_rcit import gpu_cits_lag_rcit
+def dcs_ar(pred,out):
+    _,gl_uw,gl_w,gc_uw,gc_w,gb_uw,gb_lw,gb_cw=out
+    return compute_directed_metrics(pred,gl_w,gc_w,gb_lw,gb_cw,gl_uw,gc_uw,gb_uw)['directed_CS_strict']
+out=open('_sd_gpu2_rcit.csv','w',newline=''); w=csv.writer(out); w.writerow(['cell','seed','cs'])
+for reg in ['nonlinnongauss1','nonlinnongauss2']:
+    for s in range(50):
+        o=simulate_extended(reg,1.0,1000,s); X=o[0].astype(np.float64)
+        B=gpu_cits_lag_rcit(X,alpha=0.05,tau=1,K=25,n_perm=100,max_cond_size=5,seed=s,device='cuda:0',null='gamma')
+        p=(np.asarray(B)!=0).astype(int); np.fill_diagonal(p,0); w.writerow([f'CITS_{reg}',s,dcs_ar(p,o)])
+    out.flush()
+for m in ['depression']:
+    for s in range(50):
+        X,GT,_=simulate_glm_spiking(s,motif=m)
+        B=gpu_cits_lag_rcit(X,alpha=0.05,tau=1,K=25,n_perm=100,max_cond_size=5,seed=s,device='cuda:0',null='gamma')
+        p=(np.asarray(B)!=0).astype(int); np.fill_diagonal(p,0); w.writerow([f'CITS_spk_{m}',s,gdcs(p,GT)[0]])
+    out.flush()
+out.close(); print("gpu2 rcit done")
