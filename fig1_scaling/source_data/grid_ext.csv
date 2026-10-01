@@ -1,0 +1,7 @@
+method,p,N,seed,status,runtime_sec,cs,load_max,clean
+TPC,1000,125,0,timeout,1800,,9.5,True
+TPC,1000,250,0,timeout,1800,,14.1,True
+TPC,1000,500,0,timeout,1800,,10.1,True
+KernelGC,1000,125,0,timeout,1800,,11.8,True
+KernelGC,1000,250,0,timeout,1800,,9.9,True
+KernelGC,1000,500,0,timeout,1800,,10.0,True
