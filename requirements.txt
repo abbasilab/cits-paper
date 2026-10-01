@@ -1,0 +1,39 @@
+# Python dependencies of the CITS-paper analysis scripts.
+# Versions are those installed in the `microns` conda environment (Python 3.10.13)
+# that ran the analyses, restricted to packages the scripts import.
+# See README.md ("Environment") for the auxiliary environments (tigra, gc2r,
+# micronsnew), the cuPC GPU library, and R packages.
+
+# CITS package (not vendored here). The analyses imported a local checkout of
+# https://github.com/abbasilab/cits (v1.8.x, GPU + contemporaneous code).
+cits>=1.8.3
+
+# Scientific stack
+numpy==1.26.4
+scipy==1.15.3
+pandas==2.2.3
+matplotlib==3.10.1
+seaborn==0.13.2
+networkx==3.4.2
+scikit-learn==1.6.1
+statsmodels==0.14.4
+numba==0.61.2
+pillow==11.1.0
+psutil==6.1.0
+tqdm==4.67.1
+
+# GPU CI tests (RCIT / HSIC) and batched residualization; the runs used the CUDA 12.8 wheels
+torch==2.9.1
+
+# Baselines
+tigramite==5.2.10.1        # PCMCI+ / LPCMCI
+causal-learn==0.1.4.7      # exploratory/latent_confounders/_cits_fci.py only
+
+# Data access
+allensdk==2.16.2           # Allen Brain Observatory Visual Coding Neuropixels (fig5 notebooks)
+caveclient==7.8.0          # MICrONS CAVE (fig3 data_prep)
+datajoint==0.14.3          # MICrONS functional DB (fig3 data_prep; see README for microns_phase3)
+openpyxl==3.1.5            # pandas.to_excel in fig3 data_prep/cits_finalize.ipynb
+
+# R bridge: conditional Granger (bruceR) for Fig 5A GC2 and the exploratory kpcalg check
+rpy2==3.5.11
