@@ -103,7 +103,7 @@ def task(t):
         _, block, motif, s = t
         SH = 0.0 if block == 'control' else -1.5
         X, GTc, GTs = sim_spiking(s, motif, SH)
-        A = tpc_pkg(X, gauss=(TPC_TEST == 'gauss'))
+        A = tpc_pkg(X, gauss=True)        # spike counts: kpcalg's kernel test cannot be fitted (GAM fails on few unique values)
         return ('spk', [block, motif, s, cs_full(A, ((GTc + GTs) > 0).astype(int)),
                         float(np.mean([A[i, i] > 0 for i in range(P)]))])
     except Exception as e:                  # report, never silently drop
