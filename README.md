@@ -11,7 +11,7 @@ The CITS algorithm itself is a separate package and is **not** included here:
 - Package: <https://github.com/abbasilab/cits> (`pip install "cits>=1.8.3"`)
 - GPU runs also need the cuPC library (<https://github.com/LIS-Laboratory/cupc>); see [Environment](#environment).
 
-**License:** TBD (to be chosen by the authors).
+**License:** code under the [PolyForm Noncommercial License 1.0.0](LICENSE) (free for noncommercial use; for commercial use, contact the authors); data tables in `source_data/` under [CC BY 4.0](LICENSE-DATA). Copyright (c) 2023-2026 Rahul Biswas. If you use this code or data, please cite the CITS paper (see `CITATION.cff`).
 
 **Status.** This is a snapshot of working scripts, copied on 2026-10-01 from unversioned
 locations (provenance in the [appendix](#appendix-file-provenance)). The scripts were **not
