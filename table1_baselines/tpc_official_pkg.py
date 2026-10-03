@@ -8,7 +8,8 @@ Scoring is identical to the existing scripts:
   spiking networks: full-graph CS including self-edges (_spiking_pmatched_cpu.py)
 Run in the environment that has timeawarepc + R pcalg (e.g. conda env `timeawarepc_test`):
   N_WORKERS=48 python tpc_official_pkg.py
-Outputs (<OUT>/table1_baselines/): tpc_official_fig2.csv, tpc_official_spiking.csv
+Outputs (<OUT>/table1_baselines/): tpc_official[_lagged]_fig2.csv, tpc_official[_lagged]_spiking.csv
+(TPC_LAGGED_ONLY=1, the default, writes the _lagged files.)
 """
 import os, sys, csv
 import numpy as np
@@ -51,10 +52,35 @@ def cs_full(pred, GT):                      # verbatim scoring from _spiking_pma
     return (TP / nt if nt else 0) - (FP / nn if nn else 0)
 
 
+LAGGED_ONLY = os.environ.get('TPC_LAGGED_ONLY', '1') == '1'
+
+
 def tpc_pkg(X):
-    from timeawarepc.tpc import cfc_tpc
-    adj, _w = cfc_tpc(X.T, maxdelay=1, alpha=0.05, isgauss=True)
-    return (np.asarray(adj) != 0).astype(int)
+    """TPC via the package. LAGGED_ONLY (default): the package's own steps (time-delay transform,
+    PC, IDA effects) with the rolled graph built from lagged edges only (source slot earlier than
+    target slot), then the package's magnitude pruning. This matches CITS, which reports lagged
+    edges only, and the simulated ground truth, which has no same-time edges. With
+    TPC_LAGGED_ONLY=0 it calls cfc_tpc unchanged (lagged + contemporaneous edges)."""
+    from timeawarepc import tpc as T
+    if not LAGGED_ONLY:
+        adj, _w = T.cfc_tpc(X.T, maxdelay=1, alpha=0.05, isgauss=True)
+        return (np.asarray(adj) != 0).astype(int)
+    md, m = 1, X.shape[0]
+    data_trans = T.data_transformed(X.T, md)
+    g = T._run_pc_inner(data_trans, 0.05, True)
+    ce = T.causaleff_ida(g, data_trans)
+    lab = np.arange((md + 1) * m).reshape((m, md + 1))
+    A = np.zeros((m, m), int); W = np.zeros((m, m))
+    for i in range(m):
+        for k in range(m):
+            acc = [ce[lab[i, j], lab[k, l]] for j in range(md + 1) for l in range(md + 1)
+                   if j < l and (lab[i, j], lab[k, l]) in g.edges]
+            if acc:
+                A[i, k] = 1; W[i, k] = np.mean(acc)
+    if A.any():                               # package pruning rule, applied to the lagged weights
+        cutoff = np.nanmax(np.abs(W[A == 1])) / 10
+        A[np.abs(W) <= cutoff] = 0
+    return A
 
 
 def task(t):
@@ -90,9 +116,9 @@ if __name__ == '__main__':
             {'ar': ar, 'spk': spk, 'err': err}[kind].append(row)
             if (k + 1) % 200 == 0:
                 print(f'{k + 1}/{len(tasks)} done, errors {len(err)}', flush=True)
-    with open(_out('table1_baselines', 'tpc_official_fig2.csv'), 'w', newline='') as f:
+    with open(_out('table1_baselines', f"tpc_official{'_lagged' if LAGGED_ONLY else ''}_fig2.csv"), 'w', newline='') as f:
         w = csv.writer(f); w.writerow(['method', 'regime', 'noise', 'seed', 'TPR', 'FPR', 'CS']); w.writerows(sorted(ar, key=lambda r: (r[1], r[2], r[3])))
-    with open(_out('table1_baselines', 'tpc_official_spiking.csv'), 'w', newline='') as f:
+    with open(_out('table1_baselines', f"tpc_official{'_lagged' if LAGGED_ONLY else ''}_spiking.csv"), 'w', newline='') as f:
         w = csv.writer(f); w.writerow(['block', 'cell', 'seed', 'cs', 'self_frac']); w.writerows(sorted(spk))
     for e in err: print('ERROR', e)
     import pandas as pd
