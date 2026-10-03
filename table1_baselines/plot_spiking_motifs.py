@@ -42,7 +42,10 @@ matplotlib.rcParams['font.sans-serif'] = ['Liberation Sans', 'Arial', 'DejaVu Sa
 import matplotlib.pyplot as plt
 from matplotlib.patches import Circle, Arc
 
-OUT = '/home/rbiswas1/microns/CITS_manuscript/figures/final_figures_2026-08-31'
+import sys
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'shared')))
+from paths import outdir as _outdir
+OUT = _outdir('table1_baselines')   # was CITS_manuscript/figures/final_figures_2026-08-31
 os.makedirs(OUT, exist_ok=True)
 
 # ── Universal canvas (identical for all 7 glyphs) ─────────────────────────────

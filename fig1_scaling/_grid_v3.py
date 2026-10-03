@@ -5,6 +5,8 @@ confirmed - no need to replicate a timeout). Records CS+runtime+cert per seed.
 CPU: 32 threads, certified >=40 cores free. GPU: exclusive. Sequential (solo)."""
 import os, sys, time, subprocess
 _THIS = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, os.path.abspath(os.path.join(_THIS, '..', 'shared')))
+from paths import out as _out
 import pandas as pd, numpy as np
 
 BUDGET = 1800; NCPU = os.cpu_count(); CLEAN_MIN_FREE = 40
@@ -13,7 +15,7 @@ P_CPU = [5, 10, 25, 50, 100, 250, 500]
 P_GPU = [5, 10, 25, 50, 100, 250, 500, 1000]
 N_GRID = [125, 250, 500, 1000]
 CPU_METHODS = ['PCMCI+', 'TPC', 'KernelGC', 'LPCMCI']
-OUT = os.path.join(_THIS, 'grid_v3.csv')
+OUT = _out('fig1_scaling', 'grid_v3.csv')
 rows = []
 
 

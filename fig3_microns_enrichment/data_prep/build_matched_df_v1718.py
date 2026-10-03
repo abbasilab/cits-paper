@@ -8,8 +8,8 @@ each supervoxel.
 
 Reports counts of unchanged, re-rooted, and invalidated roots.
 
-Outputs: /data1/rb1/microns/saves/matched_df_v1718.pkl
-Log:     /tmp/cave_migration_logs/build_matched_df_v1718.log
+Outputs: $CITS_PAPER_OUT/fig3_microns_enrichment/data_prep/matched_df_v1718.pkl
+Log:     $CITS_PAPER_OUT/fig3_microns_enrichment/data_prep/logs/build_matched_df_v1718.log
 """
 import os
 import sys
@@ -18,8 +18,10 @@ import time
 import numpy as np
 import pandas as pd
 from caveclient import CAVEclient
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '..', 'shared')))
+from paths import out as _out, result, microns_saves
 
-LOG = '/tmp/cave_migration_logs/build_matched_df_v1718.log'
+LOG = _out('fig3_microns_enrichment/data_prep/logs', 'build_matched_df_v1718.log')
 os.makedirs(os.path.dirname(LOG), exist_ok=True)
 
 logf = open(LOG, 'w')
@@ -31,8 +33,9 @@ def log(msg):
     logf.flush()
 
 
-SRC = '/data1/rb1/microns/saves/matched_df.pkl'
-DST = '/data1/rb1/microns/saves/matched_df_v1718.pkl'
+# matched_df.pkl from cits_finalize.ipynb (falls back to an existing <MICRONS_SAVES>/matched_df.pkl)
+SRC = result('fig3_microns_enrichment/data_prep', 'matched_df.pkl', fallback=microns_saves('matched_df.pkl'))
+DST = _out('fig3_microns_enrichment/data_prep', 'matched_df_v1718.pkl')
 TARGET_VERSION = 1718
 
 log(f'Loading {SRC} ...')

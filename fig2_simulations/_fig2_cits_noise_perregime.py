@@ -1,6 +1,7 @@
 import numpy as np, sys, os, warnings, csv; warnings.filterwarnings('ignore')
-os.environ.setdefault('CUPC_DIR','/home/rbiswas1/repos/cupc')
-sys.path.insert(0,'.'); sys.path.insert(0,'/home/rbiswas1/repos/cits')
+sys.path.insert(0,'.'); sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'shared')))
+from paths import out as _out, CUPC_DIR
+os.environ.setdefault('CUPC_DIR', CUPC_DIR)
 from sim_scm import simulate_extended
 from directed_metrics import compute_directed_metrics
 from gpu_cits_lag_cupc import gpu_cits_lag_cupc
@@ -10,7 +11,7 @@ def m3(pred,out):
     m=compute_directed_metrics(pred,gl_w,gc_w,gb_lw,gb_cw,gl_uw,gc_uw,gb_uw)
     return m['directed_TPR_strict'],m['directed_FPR_strict'],m['directed_CS_strict']
 NOISE=[0.1,0.5,1,1.5,2,2.5,3,3.5]
-w=csv.writer(open('_fig2_cits_noise50.csv','w',newline='')); w.writerow(['method','regime','noise','seed','TPR','FPR','CS'])
+w=csv.writer(open(_out('fig2_simulations', '_fig2_cits_noise50.csv'),'w',newline='')); w.writerow(['method','regime','noise','seed','TPR','FPR','CS'])
 for reg,linear in [('lingauss1',True),('lingauss2',True),('nonlinnongauss1',False),('nonlinnongauss2',False)]:
   for nz in NOISE:
     for s in range(50):

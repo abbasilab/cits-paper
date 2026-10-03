@@ -4,7 +4,8 @@ wall cleanly if/when it hits. Extends the scaling curve as far as one GPU allows
 import os, sys, time, warnings, gc
 warnings.filterwarnings('ignore')
 _THIS = os.path.dirname(os.path.abspath(__file__))
-for _p in (_THIS, '/home/rbiswas1/repos/cits'):
+# _THIS, the parent fig1_scaling/ (scaling_benchmark_lg) and the repo's shared/
+for _p in (_THIS, os.path.dirname(_THIS), os.path.join(os.path.dirname(os.path.dirname(_THIS)), 'shared')):
     if _p not in sys.path: sys.path.insert(0, _p)
 import numpy as np, torch
 from scaling_benchmark_lg import lg_var, directed_cs

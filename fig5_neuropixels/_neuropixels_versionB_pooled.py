@@ -20,21 +20,24 @@ import os, sys, json, time, argparse
 import numpy as np
 import pickle as pkl
 
-AD = '/home/rbiswas1/microns/analysis/functional_circuitry'
-for p in (AD, '/home/rbiswas1/repos/cits', '/home/rbiswas1/repos/cupc'):
+AD = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'shared'))   # repo shared/ (was analysis/functional_circuitry)
+for p in (AD,):
     if p not in sys.path:
         sys.path.insert(0, p)
 
+from paths import outdir as _outdir, result, neuropixels
+def _union(f): return result('fig5_neuropixels', f, fallback=neuropixels(f))   # cits_v2_union_*.npy: $CITS_PAPER_OUT/fig5_neuropixels/ if present, else $NEUROPIXELS_DATA
+
 TAU, ALPHA, W = 1, 0.05, 4
 SESS, BIN = 791319847, 0.01
-DATA = '/home/rbiswas1/citsproject/data'
-OUT = '/home/rbiswas1/microns/CITS_manuscript/figures'
+DATA = neuropixels()   # was citsproject/data
+OUT = _outdir('fig5_neuropixels')   # was CITS_manuscript/figures
 STIMS = ['natural_scenes', 'static_gratings', 'gabors']
 
 labels_ordered = ['VISp', 'VISl', 'VISrl', 'VISal', 'VISpm', 'VISam',
                   'CA1', 'CA2', 'CA3', 'DG', 'SUB', 'POL', 'LGv', 'LP']
-union_units = np.load(f'{OUT}/cits_v2_union_units.npy')
-union_labels = np.load(f'{OUT}/cits_v2_union_labels.npy', allow_pickle=True)
+union_units = np.load(_union('cits_v2_union_units.npy'))
+union_labels = np.load(_union('cits_v2_union_labels.npy'), allow_pickle=True)
 permute = []
 for lab in labels_ordered:
     permute += list(np.where(union_labels == lab)[0])

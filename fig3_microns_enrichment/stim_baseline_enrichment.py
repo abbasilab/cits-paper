@@ -25,14 +25,14 @@ import pandas as pd
 from scipy.stats import fisher_exact, norm
 
 # ---------- paths ----------
-SAVES = '/data1/rb1/microns/saves/'
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'shared')))
+from paths import outdir as _outdir, OUT_ROOT, MICRONS_SAVES, arousal_figs
+SAVES = os.path.join(MICRONS_SAVES, '')
 NPY = f'{SAVES}calcium_npy'
-EM_KEYS_NPZ = ('/home/rbiswas1/microns/arousal_paper_overleaf/figures/'
-               '2026-04-29/fig4/bootstrap_sf_correlation_13sess.npz')
-STAGE_FC = ('/tmp/claude-1004/-home-rbiswas1-microns/'
-            '48b8216b-5c45-4c8f-923d-dc312e0dbb46/scratchpad/panelA_stage/fc')
-OUTDIR = ('/tmp/claude-1004/-home-rbiswas1-microns/'
-          '48b8216b-5c45-4c8f-923d-dc312e0dbb46/scratchpad')
+EM_KEYS_NPZ = arousal_figs('2026-04-29', 'fig4', 'bootstrap_sf_correlation_13sess.npz')
+# Version-B FC written by stim_run.py (was staged from gpu-2 into a session scratchpad)
+STAGE_FC = os.path.join(OUT_ROOT, 'fig3_microns_enrichment', 'out', 'fc')
+OUTDIR = _outdir('fig3_microns_enrichment')
 STIMS = ['clip', 'Monet', 'Trippy']
 
 # ---------- CITS stimulus preprocessing constants (from stim_fc_pipeline.py) ----------

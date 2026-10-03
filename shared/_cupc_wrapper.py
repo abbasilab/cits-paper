@@ -4,8 +4,8 @@ _cupc_wrapper.py
 Python ctypes wrapper for cuPC (Zarebavani et al. 2020, TPDS).
 
 Library:
-  /home/rbiswas1/repos/cupc/Skeleton.so
-  Built from /home/rbiswas1/repos/cupc/cuPC-S.cu via
+  $CUPC_DIR/Skeleton.so (default ~/repos/cupc, as in the cits package)
+  Built from $CUPC_DIR/cuPC-S.cu via
     nvcc -O3 --shared -Xcompiler -fPIC -o Skeleton.so cuPC-S.cu
 
 C entry point (from cuPC-S.h):
@@ -43,7 +43,7 @@ import ctypes
 import numpy as np
 from scipy.stats import norm
 
-_CUPC_DIR = '/home/rbiswas1/repos/cupc'
+_CUPC_DIR = os.environ.get('CUPC_DIR', os.path.expanduser('~/repos/cupc'))
 _CUPC_LIB_PATH = os.path.join(_CUPC_DIR, 'Skeleton.so')
 
 _ML = 14  # cuPC compile-time max level

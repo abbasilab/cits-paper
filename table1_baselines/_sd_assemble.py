@@ -1,15 +1,20 @@
 """Assemble mean +- s.d. for the unified benchmark table from all per-seed sources."""
-import numpy as np, pandas as pd, os, glob
+import numpy as np, pandas as pd, os, glob, sys
 
 DIR = os.path.dirname(os.path.abspath(__file__))
-REC = '/home/rbiswas1/microns/arousal_paper_overleaf/figures/2026-06-06_directed_cs'
+sys.path.insert(0, os.path.abspath(os.path.join(DIR, '..', 'shared')))
+from paths import out as _out, result, arousal_figs
+# Per-seed CSVs of directed_benchmark_*.py: $CITS_PAPER_OUT/table1_baselines/ if present,
+# else the author's original run under $AROUSAL_FIGS/2026-06-06_directed_cs/.
+REC_OLD = arousal_figs('2026-06-06_directed_cs')
 AR = ['lingauss1', 'lingauss2', 'nonlinnongauss1', 'nonlinnongauss2']
 SPK = ['convergence', 'diamond', 'depression']            # tags: conv,cce,depr
 TAG = {'convergence': 'conv', 'diamond': 'cce', 'depression': 'depr'}
 cells = {}          # (method, paradigm) -> np.array of per-seed CS
 
 def rec(fname, model):
-    d = pd.read_csv(os.path.join(REC, f'simulation_results_directed_{fname}.csv'))
+    _f = f'simulation_results_directed_{fname}.csv'
+    d = pd.read_csv(result('table1_baselines', _f, fallback=os.path.join(REC_OLD, _f)))
     return d[d['model'] == model]['directed_CS'].to_numpy()
 
 # --- AR baselines from recorded CSVs ---
@@ -20,23 +25,23 @@ for r in AR:
     cells[('PCMCIplus', r)] = rec('pcmci_plus', r)
     cells[('LPCMCI', r)] = rec('lpcmci', r)
 # AR CITS: lingauss from recorded (pcorr); nlng from gpu2 RCIT
-_cual=pd.read_csv(os.path.join(DIR,'_sd_ar_lingauss_cupc.csv'))
+_cual=pd.read_csv(_out('table1_baselines','_sd_ar_lingauss_cupc.csv'))
 cells[('CITS','lingauss1')]=_cual[_cual.cell=='CITScupc_lingauss1']['cs'].to_numpy()
 cells[('CITS','lingauss2')]=_cual[_cual.cell=='CITScupc_lingauss2']['cs'].to_numpy()
 
 # --- gpu2 RCIT: CITS nlng1/2 + spiking depression ---
-g = pd.read_csv(os.path.join(DIR, '_sd_gpu2_rcit.csv'))
+g = pd.read_csv(_out('table1_baselines', '_sd_gpu2_rcit.csv'))
 cells[('CITS', 'nonlinnongauss1')] = g[g.cell == 'CITS_nonlinnongauss1']['cs'].to_numpy()
 cells[('CITS', 'nonlinnongauss2')] = g[g.cell == 'CITS_nonlinnongauss2']['cs'].to_numpy()
 cells[('CITS', 'depression')] = g[g.cell == 'CITS_spk_depression']['cs'].to_numpy()
 
 # --- CITS convergence/diamond: faithful neighbor-restricted PC-skeleton + pcorr (cuPC) ---
-_cu=pd.read_csv(os.path.join(DIR,'_sd_spk_cits_cupc_convdia.csv'))
+_cu=pd.read_csv(_out('table1_baselines','_sd_spk_cits_cupc_convdia.csv'))
 cells[('CITS','convergence')]=_cu[_cu.cell=='CITScupc_convergence']['cs'].to_numpy()
 cells[('CITS','diamond')]=_cu[_cu.cell=='CITScupc_diamond']['cs'].to_numpy()
 
 # --- local: spiking GC1/GC2/TPC/KernelGC + AR GC2 ---
-L = pd.read_csv(os.path.join(DIR, '_sd_local.csv'))
+L = pd.read_csv(_out('table1_baselines', '_sd_local.csv'))
 for m in SPK:
     for meth in ['GC1', 'GC2', 'TPC', 'KernelGC']:
         cells[(meth, m)] = L[L.cell == f'{meth}_spk_{TAG[m]}']['cs'].to_numpy()
@@ -44,7 +49,7 @@ for r in AR:
     cells[('GC2', r)] = L[L.cell == f'GC2_{r}']['cs'].to_numpy()
 
 # --- tigra: spiking PCMCI+/LPCMCI ---
-T = pd.read_csv(os.path.join(DIR, '_sd_tigra.csv'))
+T = pd.read_csv(_out('table1_baselines', '_sd_tigra.csv'))
 for m in SPK:
     cells[('PCMCIplus', m)] = pd.to_numeric(T[T.cell == f'PCMCIplus_spk_{TAG[m]}']['cs'], errors='coerce').dropna().to_numpy()
     cells[('LPCMCI', m)] = pd.to_numeric(T[T.cell == f'LPCMCI_spk_{TAG[m]}']['cs'], errors='coerce').dropna().to_numpy()
@@ -63,5 +68,5 @@ for r in PARADS:
         a=cells.get((m,r))
         rows.append({'paradigm':r,'method':m,'mean':a.mean() if a is not None and len(a) else np.nan,
                      'sd':a.std() if a is not None and len(a) else np.nan,'n':len(a) if a is not None else 0})
-pd.DataFrame(rows).to_csv(os.path.join(DIR,'_sd_assembled.csv'),index=False)
+pd.DataFrame(rows).to_csv(_out('table1_baselines','_sd_assembled.csv'),index=False)
 print("\nsaved _sd_assembled.csv")

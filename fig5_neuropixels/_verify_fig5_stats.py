@@ -1,11 +1,15 @@
 #!/usr/bin/env python3
-import numpy as np, pickle as pkl, os
-FIG='/home/rbiswas1/microns/CITS_manuscript/figures'
-DATA='/home/rbiswas1/citsproject/data'
+import numpy as np, pickle as pkl, os, sys
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'shared')))
+from paths import outdir as _outdir, result, neuropixels
+def _union(f): return result('fig5_neuropixels', f, fallback=neuropixels(f))   # cits_v2_union_*.npy: $CITS_PAPER_OUT/fig5_neuropixels/ if present, else $NEUROPIXELS_DATA
+
+FIG=_outdir('fig5_neuropixels')   # was CITS_manuscript/figures
+DATA=neuropixels()   # was citsproject/data
 SESS=791319847; WBINS=9000
 STIMS=['natural_scenes','static_gratings','gabors']
 lo=['VISp','VISl','VISrl','VISal','VISpm','VISam','CA1','CA2','CA3','DG','SUB','POL','LGv','LP']
-uu=np.load(f'{FIG}/cits_v2_union_units.npy'); ul=np.load(f'{FIG}/cits_v2_union_labels.npy',allow_pickle=True)
+uu=np.load(_union('cits_v2_union_units.npy')); ul=np.load(_union('cits_v2_union_labels.npy'),allow_pickle=True)
 perm=[]
 for l in lo: perm+=list(np.where(ul==l)[0])
 perm=np.array(perm); u2u={int(u):i for i,u in enumerate(uu)}

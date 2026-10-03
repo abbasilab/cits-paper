@@ -6,7 +6,7 @@ ParCorr on all motifs; additionally PCMCI+ with a nonlinear CI test (CMIknn) on
 the coincidence motif, so the baselines get a fair nonparametric shot where the
 coupling is nonlinear.
 
-Run: /home/rbiswas1/miniconda3/envs/tigra/bin/python _glm_suite_baselines.py --seeds 10
+Run: <tigra env python> _glm_suite_baselines.py --seeds 10
 """
 from __future__ import annotations
 import argparse, warnings, os, sys

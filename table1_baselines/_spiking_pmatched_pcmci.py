@@ -3,6 +3,7 @@ full-graph CS (cross + self). tigra env. SH env toggles recurrence as in
 _spiking_pmatched_cpu.py."""
 import numpy as np, sys, os, warnings; warnings.filterwarnings('ignore')
 sys.path.insert(0,os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'shared')))  # repo shared/ (_glm_suite_baselines)
 from _glm_suite_baselines import _graph_to_adj, TAU_MAX, ALPHA
 MOTIFS={'convergence':[(0,2),(1,2),(2,3)],'diamond':[(0,1),(0,2),(1,3),(2,3)],
         'chain':[(0,1),(1,2),(2,3)],'depression':[(0,2),(1,2),(2,3)]}

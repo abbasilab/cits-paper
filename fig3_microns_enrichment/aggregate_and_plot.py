@@ -6,8 +6,11 @@ import numpy as np, pandas as pd
 import matplotlib; matplotlib.use('Agg'); import matplotlib.pyplot as plt
 from scipy.stats import friedmanchisquare, wilcoxon
 from itertools import combinations
+import os, sys
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'shared')))
+from paths import out as _out, result
 
-d = pd.read_csv('results/stimulus_fc_combined.csv')
+d = pd.read_csv(result('fig3_microns_enrichment', 'results/stimulus_fc_combined.csv'))
 d['fid'] = d.session.astype(str)+'_'+d.scan.astype(str)+'_'+d.field.astype(str)
 STIMS = ['clip','Monet','Trippy']; COL={'clip':'#0072B2','Monet':'#D55E00','Trippy':'#009E73'}
 AREAS=['V1','LM','RL','AL']; PAIRS=[f'{a}->{b}' for a in AREAS for b in AREAS]
@@ -82,6 +85,6 @@ def fig_area_pairs(var, fname):
     fig.tight_layout(); fig.savefig(fname, dpi=190, bbox_inches='tight'); print("saved",fname)
 
 for var in ['A','B']:
-    fig_within_between(var, f'stim_fc_variant{var}_within_between.png')
-    fig_area_pairs(var, f'stim_fc_variant{var}_area_pairs.png')
+    fig_within_between(var, _out('fig3_microns_enrichment', f'stim_fc_variant{var}_within_between.png'))
+    fig_area_pairs(var, _out('fig3_microns_enrichment', f'stim_fc_variant{var}_area_pairs.png'))
 print("DONE")

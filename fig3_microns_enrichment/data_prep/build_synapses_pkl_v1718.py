@@ -1,5 +1,5 @@
 """
-Build /data1/rb1/microns/saves/synapses_matcheddf_frompre_v1718.pkl
+Build $CITS_PAPER_OUT/fig3_microns_enrichment/data_prep/synapses_matcheddf_frompre_v1718.pkl
 
 For every pre_root in matched_df_v1718, query synapses_pni_2 via query_table
 (NOT synapse_query) at materialize.version=1718 so autapses come through.
@@ -15,8 +15,10 @@ import json
 import pandas as pd
 import numpy as np
 from caveclient import CAVEclient
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '..', 'shared')))
+from paths import out as _out, result, microns_saves
 
-LOG = '/tmp/cave_migration_logs/build_pkl_v1718.log'
+LOG = _out('fig3_microns_enrichment/data_prep/logs', 'build_pkl_v1718.log')
 os.makedirs(os.path.dirname(LOG), exist_ok=True)
 
 logf = open(LOG, 'w')
@@ -28,8 +30,9 @@ def log(msg):
     logf.flush()
 
 
-SRC_MATCHED = '/data1/rb1/microns/saves/matched_df_v1718.pkl'
-DST_PKL = '/data1/rb1/microns/saves/synapses_matcheddf_frompre_v1718.pkl'
+# matched_df_v1718.pkl from build_matched_df_v1718.py (falls back to <MICRONS_SAVES>/matched_df_v1718.pkl)
+SRC_MATCHED = result('fig3_microns_enrichment/data_prep', 'matched_df_v1718.pkl', fallback=microns_saves('matched_df_v1718.pkl'))
+DST_PKL = _out('fig3_microns_enrichment/data_prep', 'synapses_matcheddf_frompre_v1718.pkl')
 
 CHUNK_SIZE = 200
 

@@ -1,5 +1,6 @@
-import numpy as np, sys, warnings, csv; warnings.filterwarnings('ignore')
-sys.path.insert(0,'.'); sys.path.insert(0,'/home/rbiswas1/repos/cits')
+import numpy as np, sys, os, warnings, csv; warnings.filterwarnings('ignore')
+sys.path.insert(0,'.'); sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'shared')))
+from paths import out as _out
 from glm_spiking_sim import simulate_glm_spiking, directed_cs as gdcs
 from sim_scm import simulate_extended
 from simulation_benchmark_fc_methods_v3 import run_tpc
@@ -22,7 +23,7 @@ def granger(X,cond):
 def dcs_ar(pred,out):
     _,gl_uw,gl_w,gc_uw,gc_w,gb_uw,gb_lw,gb_cw=out
     return compute_directed_metrics(pred,gl_w,gc_w,gb_lw,gb_cw,gl_uw,gc_uw,gb_uw)['directed_CS_strict']
-w=csv.writer(open('_sd_local.csv','w',newline='')); w.writerow(['cell','seed','cs'])
+w=csv.writer(open(_out('table1_baselines', '_sd_local.csv'),'w',newline='')); w.writerow(['cell','seed','cs'])
 SPK={'convergence':'conv','diamond':'cce','depression':'depr'}
 for m,tag in SPK.items():
     for s in range(50):

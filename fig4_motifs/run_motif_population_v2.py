@@ -18,7 +18,8 @@ import pickle as pkl
 from itertools import combinations
 from scipy import stats
 
-sys.path.insert(0, '/home/rbiswas1/repos/cits')
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'shared')))
+from paths import outdir as _outdir, neuropixels
 from cits.methods import data_transform, partial_corr
 
 # ----------------------------------------------------------------------------
@@ -31,8 +32,8 @@ IDX = 0
 TAU = 1
 ALPHA = 0.05
 MAX_K = 4           # bounded conditioning-set size (scalable; pure PC would be unbounded)
-DATA_DIR = '/home/rbiswas1/citsproject/data'
-OUT_DIR = '/home/rbiswas1/microns/CITS_manuscript/figures'
+DATA_DIR = neuropixels()   # was citsproject/data
+OUT_DIR = _outdir('fig4_motifs')   # was CITS_manuscript/figures
 np.random.seed(0)   # not used by anything deterministic; set for good hygiene
 
 X_FILE = f'{DATA_DIR}/ID{SESS}_{STIM}_bin_{BIN}_X_idx-{IDX}.p'

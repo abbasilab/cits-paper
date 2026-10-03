@@ -5,17 +5,18 @@ figures/plot_em_areapair_synapse_versionBsafe.py except EM_COLOR -> gray and a
 new output path; reads the same versionBsafe EM data.
 """
 import os
+import sys
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 from matplotlib.ticker import ScalarFormatter
 
-BASE = ('/home/rbiswas1/microns/arousal_paper_overleaf/figures/'
-        '2026-06-01_versionBsafe/fig2')
-CSV = os.path.join(BASE, 'em_areapair_synapse_versionBsafe.csv')
-NPZ = os.path.join(BASE, 'em_areapair_synapse_versionBsafe.npz')
-OUT = ('/home/rbiswas1/microns/analysis/stimulus_fc/'
-       'em_areapair_synapse_GRAY.png')
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'shared')))
+from paths import out as _out, result
+# from bootstrap_em_areapair_synapse_versionBsafe.py (CSV also committed in source_data/; NPZ is not)
+CSV = result('fig3_microns_enrichment', 'em_areapair_synapse_versionBsafe.csv')
+NPZ = result('fig3_microns_enrichment', 'em_areapair_synapse_versionBsafe.npz')
+OUT = _out('fig3_microns_enrichment', 'em_areapair_synapse_GRAY.png')
 EM_COLOR = '#7a7a7a'  # neutral gray (structure)
 
 WITHIN_PAIRS = [('AL', 'AL'), ('LM', 'LM'), ('RL', 'RL'), ('V1', 'V1')]

@@ -5,7 +5,7 @@ Adds LPCMCI (Gerhardus & Runge, NeurIPS 2020) to the directed-CS benchmark.
 Mirrors directed_benchmark_cpu.py structure but only runs LPCMCI.
 
 Output:
-  /home/rbiswas1/microns/arousal_paper_overleaf/figures/2026-06-06_directed_cs/
+  $CITS_PAPER_OUT/table1_baselines/ (originally arousal_paper_overleaf/figures/2026-06-06_directed_cs/)
       simulation_results_directed_lpcmci.csv
 
 Usage:
@@ -29,12 +29,13 @@ import pandas as pd
 warnings.filterwarnings('ignore')
 
 _THIS_DIR = os.path.dirname(os.path.abspath(__file__))
-_REPO_CITS = '/home/rbiswas1/repos/cits'
-_OVERLEAF = '/home/rbiswas1/microns/arousal_paper_overleaf'
-OUT_DIR = os.path.join(_OVERLEAF, 'figures/2026-06-06_directed_cs')
+_SHARED = os.path.abspath(os.path.join(_THIS_DIR, '..', 'shared'))
+sys.path.insert(0, _SHARED)
+from paths import outdir as _outdir
+OUT_DIR = _outdir('table1_baselines')   # was arousal_paper_overleaf/figures/2026-06-06_directed_cs
 OUT_CSV = os.path.join(OUT_DIR, 'simulation_results_directed_lpcmci.csv')
 
-for _p in [_THIS_DIR, _REPO_CITS]:
+for _p in [_THIS_DIR, _SHARED]:
     if _p not in sys.path:
         sys.path.insert(0, _p)
 

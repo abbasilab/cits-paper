@@ -7,10 +7,13 @@ N the walled baselines vanish, which makes the accuracy panels read misleadingly
 import pandas as pd, numpy as np
 import matplotlib; matplotlib.use('Agg')
 import matplotlib.pyplot as plt
-import os
+import os, sys
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'shared')))
+from paths import out as _out, outdir as _outdir, result
 
-d = pd.read_csv('grid_v3.csv')
-if os.path.exists('grid_ext.csv'): d = pd.concat([d, pd.read_csv('grid_ext.csv')], ignore_index=True)
+# grid CSVs from fig1_scaling: $CITS_PAPER_OUT/fig1_scaling/ if present, else fig1_scaling/source_data/
+d = pd.read_csv(result('fig1_scaling', 'grid_v3.csv'))
+if os.path.exists(result('fig1_scaling', 'grid_ext.csv')): d = pd.concat([d, pd.read_csv(result('fig1_scaling', 'grid_ext.csv'))], ignore_index=True)
 agg = d.groupby(['method','p','N','status']).agg(cs=('cs','mean'), rt=('runtime_sec','mean')).reset_index()
 
 methods = ['CITS-GPU','PCMCI+','TPC','KernelGC','LPCMCI']
@@ -38,9 +41,8 @@ for i, N in enumerate(N_GRID):
     if i==0: ax.legend(frameon=False, fontsize=8, ncol=2, loc='upper left')
 fig.suptitle('Runtime of all methods across $p$, at each sample size $N$', fontsize=11, y=0.995)
 fig.tight_layout(rect=[0,0,1,0.97])
-fig.savefig('scaling_grid_supp.png', dpi=170, bbox_inches='tight')
-for MS in ('/home/rbiswas1/microns/CITS_manuscript/figures',
-           '/home/rbiswas1/microns/CITS_manuscript/figures/final_figures_2026-08-31'):
+fig.savefig(_out('supplement', 'scaling_grid_supp.png'), dpi=170, bbox_inches='tight')
+for MS in (_outdir('supplement'),):   # was CITS_manuscript/figures and .../final_figures_2026-08-31 (two identical copies)
     fig.savefig(f'{MS}/scaling_supp.png', dpi=170, bbox_inches='tight')
     fig.savefig(f'{MS}/scaling_supp.pdf', bbox_inches='tight')
-print("saved runtime-only scaling_supp.{png,pdf} to figures/ + final_figures_2026-08-31/")
+print(f"saved runtime-only scaling_supp.{{png,pdf}} to {_outdir('supplement')}")

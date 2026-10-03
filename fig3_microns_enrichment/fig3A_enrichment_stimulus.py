@@ -36,13 +36,17 @@ import matplotlib.transforms as mtransforms
 from statsmodels.stats.proportion import proportion_confint
 
 # ── Paths ─────────────────────────────────────────────────────────────────────
-SCRATCHPAD = ('/tmp/claude-1004/-home-rbiswas1-microns/'
-              '48b8216b-5c45-4c8f-923d-dc312e0dbb46/scratchpad')
-CSV_CITS    = os.path.join(SCRATCHPAD, 'panelA_perfield_counts.csv')
-CSV_GRANGER = os.path.join(SCRATCHPAD, 'stim_baseline_perfield_granger.csv')
-CSV_LAGGED  = os.path.join(SCRATCHPAD, 'stim_baseline_perfield_lagged01.csv')
+import sys
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'shared')))
+from paths import outdir as _outdir, result
+# Per-field counts (were in a session scratchpad): outputs of panelA_perfield.py,
+# stim_baseline_enrichment.py granger and corr_l0l1_final.py in
+# $CITS_PAPER_OUT/fig3_microns_enrichment/ if present, else the committed copies in source_data/.
+CSV_CITS    = result('fig3_microns_enrichment', 'panelA_perfield_counts.csv')
+CSV_GRANGER = result('fig3_microns_enrichment', 'stim_baseline_perfield_granger.csv')
+CSV_LAGGED  = result('fig3_microns_enrichment', 'stim_baseline_perfield_lagged01.csv')
 
-OUT_DIR = '/home/rbiswas1/microns/CITS_manuscript/figures/final_figures_2026-08-31'
+OUT_DIR = _outdir('fig3_microns_enrichment')   # was CITS_manuscript/figures/final_figures_2026-08-31
 OUT_PDF = os.path.join(OUT_DIR, 'fig3A_enrichment_stimulus.pdf')
 OUT_PNG = os.path.join(OUT_DIR, 'fig3A_enrichment_stimulus.png')
 

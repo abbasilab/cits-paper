@@ -15,9 +15,11 @@ The CITS algorithm itself is a separate package and is **not** included here:
 
 **Status.** This is a snapshot of working scripts, copied on 2026-10-01 from unversioned
 locations (provenance in the [appendix](#appendix-file-provenance)). The scripts were **not
-refactored**. They contain hard-coded paths (see [Paths to edit](#paths-to-edit)), and several
-assume they run from one flat directory. Notebook outputs were stripped. Credentials were
-redacted (see [Credential redactions](#credential-redactions)).
+refactored**, except that all input and output paths now go through `shared/paths.py` (see
+[Environment variables](#environment-variables)); computations, seeds and parameters are
+unchanged. Notebook outputs were stripped. Credentials were redacted (see
+[Credential redactions](#credential-redactions)). `CHANGES_paths.md` lists every file whose paths
+were changed.
 
 ---
 
@@ -38,31 +40,36 @@ redacted (see [Credential redactions](#credential-redactions)).
 
 ## Running the code
 
-The scripts import helpers by bare module name, because they originally ran from one
-directory (`analysis/functional_circuitry/`). Put `shared/` on the import path and run each
-script from its own folder:
+Every script adds the repository's `shared/` folder to `sys.path` itself (helpers are imported
+by bare module name, as in the original flat directory `analysis/functional_circuitry/`), and
+imports CITS from the installed `cits` package. Run each script from its own folder:
 
 ```bash
 git clone https://github.com/abbasilab/cits && pip install "./cits[rcit]"   # CITS v1.9.0 from source
 pip install -r requirements.txt          # plus cuPC and R packages, see Environment
 # data access (allensdk, caveclient, datajoint, rpy2) needs a separate env: requirements-data.txt
-export PYTHONPATH="$PWD/shared:$PYTHONPATH"
-cd fig2_simulations && python _fig2_kgc_noise.py
+export CITS_PAPER_OUT=$PWD/outputs       # optional; this is the default
+cd fig2_simulations && python _fig2_kgc_noise.py   # writes outputs/fig2_simulations/_fig2_kgc_noise50.csv
 ```
 
-Many scripts also prepend hard-coded directories to `sys.path`, such as
-`/home/rbiswas1/repos/cits` (the local CITS checkout) and
-`/home/rbiswas1/microns/analysis/functional_circuitry`. On another machine those directories do
-not exist, so Python falls back to `PYTHONPATH` and the installed `cits` package. Inputs and
-outputs still point at the original locations; edit them first (see [Paths to edit](#paths-to-edit)).
+Outputs go to `$CITS_PAPER_OUT/<figure folder>/` with the original file names. Large inputs are
+read from the data roots described in [Environment variables](#environment-variables). Scripts
+that re-plot or re-tabulate committed tables read them from `$CITS_PAPER_OUT/<folder>/` when
+present and otherwise from the committed `source_data/` copies. `_make_scaling_figure.py`,
+`_make_supp_figure.py`, `make_tab_cs_supp.py`, `fig3A_enrichment_stimulus.py` and
+`plot_sc_within_vs_between_GRAY.py` therefore run on a fresh clone without any data download.
+`_fig2_orig_assemble.py` also needs `_fig2_baselines_noise50.csv` and `_fig2_edgesign.json`, and
+`plot_em_areapair_synapse_GRAY.py` needs the bootstrap NPZ; these are not committed
+(see [Source data](#source-data)).
 
 ---
 
 ## Figure and table map
 
-Notation: `<FIGS>` = `/home/rbiswas1/microns/CITS_manuscript/figures`;
-`<DIRECTED_CS>` = `/home/rbiswas1/microns/arousal_paper_overleaf/figures/2026-06-06_directed_cs`;
-`<SCRATCHPAD>` = an ephemeral session directory under `/tmp/claude-1004/...` (see Paths to edit).
+Notation: `<OUT>` = `$CITS_PAPER_OUT` (default `outputs/` in the repository). `$MICRONS_SAVES`,
+`$MICRONS_META`, `$AROUSAL_FIGS`, `$NEUROPIXELS_DATA` and `$NEUROPIXELS_CACHE` are the input roots
+of [Environment variables](#environment-variables). "fallback `source_data/`" means the script reads
+`<OUT>/<folder>/<file>` if it exists and otherwise the committed copy in `<folder>/source_data/`.
 In the manuscript folder, `figures/fig1.pdf`, `fig4.pdf` and `fig5.pdf` are blank placeholders.
 Figs 1, 3, 4 and 5 were assembled from the panel files below in a slide deck.
 
@@ -71,43 +78,44 @@ Figs 1, 3, 4 and 5 were assembled from the panel files below in a slide deck.
 | Panel | Script(s) | Inputs | Outputs | Command |
 |---|---|---|---|---|
 | A–C (schematic) | none (hand-drawn illustration) | – | – | – |
-| D–F (runtime, combined score, sample complexity vs p) | `fig1_scaling/_make_scaling_figure.py` | `grid_v3.csv`, `grid_ext.csv`, `grid_seeds_ext.csv` (current directory) | `scaling_grid_figure.png`, `<FIGS>/scaling_grid_figure.pdf`, `grid_v3_aggregated.csv` | `cd fig1_scaling && python _make_scaling_figure.py` |
-| benchmark grid (3 seeds, 30-min budget) | `_grid_v3.py` → `_cell_cpu.py` (PCMCI+, LPCMCI, TPC, Kernel GC; 32 threads) and `_cell_gpu.py` (CITS on one GPU; GPU id hard-coded to `'3'`) | data simulated by `scaling_benchmark_lg.lg_var` | `grid_v3.csv` | `python _grid_v3.py` |
-| p = 1000 extension for TPC / Kernel GC | `_grid_ext.py` | – | `grid_ext.csv` | `python _grid_ext.py` |
-| extra CS-only seeds 3–9 | `_grid_seeds_ext.py` | `_feasible_cells.csv` (not included; the `(method, p, N)` cells with status `ok` in `grid_v3.csv`/`grid_ext.csv`) | `grid_seeds_ext.csv` | `python _grid_seeds_ext.py` |
+| D–F (runtime, combined score, sample complexity vs p) | `fig1_scaling/_make_scaling_figure.py` | `grid_v3.csv`, `grid_ext.csv`, `grid_seeds_ext.csv` from `<OUT>/fig1_scaling/` (fallback `source_data/`) | `<OUT>/fig1_scaling/scaling_grid_figure.{png,pdf}`, `<OUT>/fig1_scaling/grid_v3_aggregated.csv` | `cd fig1_scaling && python _make_scaling_figure.py` |
+| benchmark grid (3 seeds, 30-min budget) | `_grid_v3.py` → `_cell_cpu.py` (PCMCI+, LPCMCI, TPC, Kernel GC; 32 threads) and `_cell_gpu.py` (CITS on one GPU; GPU id hard-coded to `'3'`) | data simulated by `scaling_benchmark_lg.lg_var` | `<OUT>/fig1_scaling/grid_v3.csv` | `python _grid_v3.py` (from `fig1_scaling/`; it launches `_cell_*.py` by relative name) |
+| p = 1000 extension for TPC / Kernel GC | `_grid_ext.py` | – | `<OUT>/fig1_scaling/grid_ext.csv` | `python _grid_ext.py` |
+| extra CS-only seeds 3–9 | `_grid_seeds_ext.py` | `<OUT>/fig1_scaling/_feasible_cells.csv` (not included; the `(method, p, N)` cells with status `ok` in `grid_v3.csv`/`grid_ext.csv`) | `<OUT>/fig1_scaling/grid_seeds_ext.csv` (per-cell logs in `<OUT>/fig1_scaling/tmp/`) | `python _grid_seeds_ext.py` |
 
 The PNG labels its panels a (combined score), b (runtime at N = 1000), c (N\*). They appear in
 the paper as Fig 1E, 1D and 1F. `supporting/` holds `_extreme_scale.py` (p = 2000–10000 stress
 test), `_baseline_clean_runtime.py` and `_baseline_wall_budget.py` (earlier baseline sweeps
-superseded by `_grid_v3.py`). None of them feeds a figure.
+superseded by `_grid_v3.py`). None of them feeds a figure; their CSVs go to
+`<OUT>/fig1_scaling/supporting/`.
 
 ### Fig 2 (`fig:compsim`, `fig:edge_wts`): simulation benchmark
 
 | Panel | Script(s) | Inputs | Outputs | Command |
 |---|---|---|---|---|
-| A–C (assembly) | `fig2_simulations/_fig2_orig_assemble.py` | the five per-seed CSVs below and `_fig2_edgesign.json`, read from the script's own directory | `<FIGS>/fig2_orig.{png,pdf}` (byte-identical to `figures/fig2.pdf`) | `python _fig2_orig_assemble.py` |
-| GC1, GC2, PC, TPC (η ∈ {0.1, …, 3.5}, 50 seeds) | `_fig2_baselines_noise.py` | `sim_scm.simulate_extended` | `_fig2_baselines_noise50.csv` | `python _fig2_baselines_noise.py` |
-| CITS, linear paradigms (cuPC, partial correlation) | `_fig2_cits_noise_perregime.py` | same | `_fig2_cits_noise50.csv` (holds the two linear paradigms) | `python _fig2_cits_noise_perregime.py` |
-| CITS, non-linear paradigms (GPU RCIT) | `_fig2_cits_noise_nlng.py` | same | `_fig2_cits_noise50_nlng.csv` | `CITS_DEV=cuda:0 python _fig2_cits_noise_nlng.py` |
-| Kernel GC | `_fig2_kgc_noise.py` | same | `_fig2_kgc_noise50.csv` | `python _fig2_kgc_noise.py` |
-| PCMCI+, LPCMCI (ParCorr) | `_fig2_pcmci_noise.py` | same | `_fig2_pcmci_noise50.csv` | `python _fig2_pcmci_noise.py` |
-| C (edge weights and signs) | `_fig2_edgesign.py` | same | `_fig2_edgesign.json` | `python _fig2_edgesign.py` |
-| text: signs agree with a partial-rank estimate | `_fig2_edgedir.py` | same | `_fig2_edgedir.json` | `python _fig2_edgedir.py` |
+| A–C (assembly) | `fig2_simulations/_fig2_orig_assemble.py` | the five per-seed CSVs below and `_fig2_edgesign.json` from `<OUT>/fig2_simulations/` (fallback `source_data/` for the four committed CSVs) | `<OUT>/fig2_simulations/fig2_orig.{png,pdf}` (byte-identical to `figures/fig2.pdf`) | `python _fig2_orig_assemble.py` |
+| GC1, GC2, PC, TPC (η ∈ {0.1, …, 3.5}, 50 seeds) | `_fig2_baselines_noise.py` | `sim_scm.simulate_extended` | `<OUT>/fig2_simulations/_fig2_baselines_noise50.csv` | `python _fig2_baselines_noise.py` |
+| CITS, linear paradigms (cuPC, partial correlation) | `_fig2_cits_noise_perregime.py` | same | `<OUT>/fig2_simulations/_fig2_cits_noise50.csv` (holds the two linear paradigms) | `python _fig2_cits_noise_perregime.py` |
+| CITS, non-linear paradigms (GPU RCIT) | `_fig2_cits_noise_nlng.py` | same | `<OUT>/fig2_simulations/_fig2_cits_noise50_nlng.csv` | `CITS_DEV=cuda:0 python _fig2_cits_noise_nlng.py` |
+| Kernel GC | `_fig2_kgc_noise.py` | same | `<OUT>/fig2_simulations/_fig2_kgc_noise50.csv` | `python _fig2_kgc_noise.py` |
+| PCMCI+, LPCMCI (ParCorr) | `_fig2_pcmci_noise.py` | same | `<OUT>/fig2_simulations/_fig2_pcmci_noise50.csv` | `python _fig2_pcmci_noise.py` |
+| C (edge weights and signs) | `_fig2_edgesign.py` | same | `<OUT>/fig2_simulations/_fig2_edgesign.json` | `python _fig2_edgesign.py` |
+| text: signs agree with a partial-rank estimate | `_fig2_edgedir.py` | same | `<OUT>/fig2_simulations/_fig2_edgedir.json` | `python _fig2_edgedir.py` |
 
 ### Table 1 (`tab:modern_baselines`): combined score versus state-of-the-art baselines
 
 | Block | Script(s) | Inputs | Outputs | Command |
 |---|---|---|---|---|
-| Autoregressive rows (assembly) | `table1_baselines/_sd_assemble.py` | `_sd_ar_lingauss_cupc.csv`, `_sd_gpu2_rcit.csv`, `_sd_local.csv`, `_sd_tigra.csv`, `_sd_spk_cits_cupc_convdia.csv` (script directory) and `<DIRECTED_CS>/simulation_results_directed_{granger,tpc_original,kernel_gc,pcmci_plus,lpcmci}.csv` | `_sd_assembled.csv` (only its four autoregressive paradigms are used) | `python _sd_assemble.py` |
-| CITS on Linear Gaussian 1 and 2 (cuPC) | `_sd_ar_lingauss_cupc.py` | `sim_scm` | `_sd_ar_lingauss_cupc.csv` | `python _sd_ar_lingauss_cupc.py` |
-| CITS on Non-linear Non-Gaussian 1 and 2 (GPU RCIT) | `_sd_gpu2_rcit.py` (the name indicates the gpu-2 server) | `sim_scm`, `glm_spiking_sim` | `_sd_gpu2_rcit.csv` | `python _sd_gpu2_rcit.py` |
-| GC2 (autoregressive) | `_sd_local.py` | `sim_scm`, `glm_spiking_sim` | `_sd_local.csv` | `python _sd_local.py` |
-| GC1 (`granger`), TPC (`tpc_original`) | `directed_benchmark_cpu.py` | `simulation_benchmark_fc_methods_v3.simulate_extended` | `<DIRECTED_CS>/simulation_results_directed_{granger,tpc_original}.csv` | `python directed_benchmark_cpu.py --methods 18,19` |
-| PCMCI+ | `directed_benchmark_gpu.py` (method 14) | same | `<DIRECTED_CS>/simulation_results_directed_pcmci_plus.csv` | `python directed_benchmark_gpu.py --methods 14` |
-| Kernel GC | `directed_benchmark_kernel_gc.py` | same | `<DIRECTED_CS>/simulation_results_directed_kernel_gc.csv` | `python directed_benchmark_kernel_gc.py` |
-| LPCMCI | `directed_benchmark_lpcmci.py` | same | `<DIRECTED_CS>/simulation_results_directed_lpcmci.csv` | `python directed_benchmark_lpcmci.py` |
+| Autoregressive rows (assembly) | `table1_baselines/_sd_assemble.py` | `_sd_ar_lingauss_cupc.csv`, `_sd_gpu2_rcit.csv`, `_sd_local.csv`, `_sd_tigra.csv`, `_sd_spk_cits_cupc_convdia.csv` from `<OUT>/table1_baselines/`, and `simulation_results_directed_{granger,tpc_original,kernel_gc,pcmci_plus,lpcmci}.csv` from `<OUT>/table1_baselines/` (fallback: the author's original run in `$AROUSAL_FIGS/2026-06-06_directed_cs/`) | `<OUT>/table1_baselines/_sd_assembled.csv` (only its four autoregressive paradigms are used) | `python _sd_assemble.py` |
+| CITS on Linear Gaussian 1 and 2 (cuPC) | `_sd_ar_lingauss_cupc.py` | `sim_scm` | `<OUT>/table1_baselines/_sd_ar_lingauss_cupc.csv` | `python _sd_ar_lingauss_cupc.py` |
+| CITS on Non-linear Non-Gaussian 1 and 2 (GPU RCIT) | `_sd_gpu2_rcit.py` (the name indicates the gpu-2 server) | `sim_scm`, `glm_spiking_sim` | `<OUT>/table1_baselines/_sd_gpu2_rcit.csv` | `python _sd_gpu2_rcit.py` |
+| GC2 (autoregressive) | `_sd_local.py` | `sim_scm`, `glm_spiking_sim` | `<OUT>/table1_baselines/_sd_local.csv` | `python _sd_local.py` |
+| GC1 (`granger`), TPC (`tpc_original`) | `directed_benchmark_cpu.py` | `simulation_benchmark_fc_methods_v3.simulate_extended` | `<OUT>/table1_baselines/simulation_results_directed_{granger,tpc_original}.csv` | `python directed_benchmark_cpu.py --methods 18,19` |
+| PCMCI+ | `directed_benchmark_gpu.py` (method 14) | same | `<OUT>/table1_baselines/simulation_results_directed_pcmci_plus.csv` | `python directed_benchmark_gpu.py --methods 14` |
+| Kernel GC | `directed_benchmark_kernel_gc.py` | same | `<OUT>/table1_baselines/simulation_results_directed_kernel_gc.csv` | `python directed_benchmark_kernel_gc.py` |
+| LPCMCI | `directed_benchmark_lpcmci.py` | same | `<OUT>/table1_baselines/simulation_results_directed_lpcmci.csv` | `python directed_benchmark_lpcmci.py` |
 | Spiking networks, recurrence-free control and recurrent | `_spiking_pmatched_cpu.py` (TPC, GC1, GC2, Kernel GC), `_spiking_pmatched_pcmci.py` (PCMCI+, LPCMCI; `tigra` env), `_spiking_pmatched_cits.py` (CITS RCIT on GPU; ran on gpu-2) | simulator inside each script | stdout only (`CSfull=mean±sd selfFrac=...` per motif) | `SH=0 python <script>` (control) and `SH=-1.5 python <script>` (recurrent) |
-| Motif glyphs | `plot_spiking_motifs.py` | – | `fig_motif_*.{pdf,png}` (written to `<FIGS>/final_figures_2026-08-31/`) | `python plot_spiking_motifs.py` |
+| Motif glyphs | `plot_spiking_motifs.py` | – | `<OUT>/table1_baselines/fig_motif_*.{pdf,png}` | `python plot_spiking_motifs.py` |
 
 `_sd_tigra.py` and `_sd_spk_cits_cupc_convdia.py` produce spiking rows of an earlier table
 version. Those rows are superseded by the `_spiking_pmatched_*` runs, but `_sd_assemble.py`
@@ -129,7 +137,8 @@ survive only in an ephemeral session directory, so their values are transcribed 
 | depression | recurrent | 0.759±0.108 (0.71) | 0.375±0.064 | 0.377±0.071 | 0.391±0.063 | 0.876±0.129 (1.00) | 0.871±0.128 (1.00) |
 
 GC1, GC2 and Kernel GC never emit self-edges (self = 0.00). CITS per-seed results are in
-`table1_baselines/source_data/cits_rcit_uncapped_perseed.csv` (`make_cits_rcit_table1.py`). Means:
+`table1_baselines/source_data/cits_rcit_uncapped_perseed.csv` (`make_cits_rcit_table1.py`, which
+now writes `<OUT>/table1_baselines/cits_rcit_uncapped_perseed.csv`). Means:
 control 0.992 / 1.000 / 1.000 (spurious self-edges 0.33%); recurrent 0.993 / 0.990 / 0.994 /
 0.969 (self-edge TPR 99.1%). These come from the packaged `cits.cits_rcit` with no cap on the
 conditioning-set size (the scripts below, as updated 2026-10-03; the original runs used
@@ -141,27 +150,35 @@ The table's ±s.d. values are from this rerun.
 | Panel | Script(s) | Inputs | Outputs | Command |
 |---|---|---|---|---|
 | A (visual areas on the cortical surface) | none (rendered image) | – | – | – |
-| B (spatial layout, Clip) | `fig3_microns_enrichment/plot_fig3B_cfc_spatial_clip.py` | staged Version-B FC `<SCRATCHPAD>/panelA_stage/fc/s{s}sc{sc}f{f}_clip.npz` (key `fcB`, from `stim_run.py`), staged calcium metadata `<SCRATCHPAD>/panelA_stage/npy/`, `all_unit_coords.pkl`, `all_unit_areas.csv` | `<FIGS>/final_figures_2026-08-31/fig3B_cfc_spatial_clip.{pdf,png}` | `python plot_fig3B_cfc_spatial_clip.py` |
-| C (FC–EM synapse enrichment, 3 methods) | `fig3A_enrichment_stimulus.py` (file name says 3A; it is panel C) | `panelA_perfield_counts.csv` (CITS), `stim_baseline_perfield_granger.csv` (GC2), `stim_baseline_perfield_lagged01.csv` (lagged correlation, lag 0 ∪ lag 1) | `<FIGS>/final_figures_2026-08-31/fig3A_enrichment_stimulus.{pdf,png}` | `python fig3A_enrichment_stimulus.py` |
-| C, CITS per-field counts | `panelA_perfield.py` | staged FC, `matched_df_v1718.pkl`, `synapses_matcheddf_frompre_v1718.pkl`, EM field keys | `panelA_perfield_counts.csv` | `python panelA_perfield.py` |
-| C, GC2 and lag-1 correlation per-field counts | `stim_baseline_enrichment.py` | staged calcium (same windows as CITS), EM tables | `stim_baseline_perfield_{granger,lagged1,laggedmax}.csv` | `python stim_baseline_enrichment.py granger` (and `lagged1`) |
-| C, lag 0 ∪ lag 1 correlation counts and paired Δ vs CITS | `corr_l0l1_final.py` (imports `stim_baseline_enrichment`) | as above | `stim_baseline_perfield_lagged01.csv` | `python corr_l0l1_final.py` |
-| C, pooled CITS fold summary | `panelA_fc_em_enrichment_versionB.py` | as above | `panelA_fc_em_enrichment_versionB.{csv,png}` | `python panelA_fc_em_enrichment_versionB.py` |
-| D (within vs between, per stimulus) and F (directed area pairs) | `_plot_arousal_style.py` | `results/stimulus_fc_combined.csv` (concatenation of the `stim_run.py` shards `out/results_gpu{0,1}_shard{0,1}.csv`) | `stim_fc_variant{A,B}_within_between.png`, `stim_fc_variant{A,B}_area_pairs.png`, `report.md` (Variant B is the paper's) | `python _plot_arousal_style.py` |
-| D, statistics quoted in the text (Wilcoxon, rank-biserial r) | `task9.py` | `stimulus_fc_combined.csv` | stdout | `python task9.py` |
-| E (EM within vs between) | `bootstrap_em_within_vs_between_versionBsafe.py`, then `plot_sc_within_vs_between_GRAY.py` | EM tables, `all_unit_areas.csv`, EM field keys, arousal-pipeline FC universe (see gaps) | `sc_within_vs_between_synapse_versionBsafe.csv`, `sc_within_vs_between_perfield_versionBsafe.csv`; `sc_within_vs_between_synapse_GRAY.png` | `python bootstrap_em_within_vs_between_versionBsafe.py && python plot_sc_within_vs_between_GRAY.py` |
-| E, "6.3-fold, 95% CI 5.6–7.0" in the text | `task6.py` (Katz CI on pooled counts; it also prints superseded arousal-provenance folds) | the two CSVs above | stdout | `python task6.py` |
-| G (EM area pairs) | `bootstrap_em_areapair_synapse_versionBsafe.py`, then `plot_em_areapair_synapse_GRAY.py` | as for E | `em_areapair_synapse_versionBsafe.{csv,npz}`; `em_areapair_synapse_GRAY.png` | `python bootstrap_em_areapair_synapse_versionBsafe.py && python plot_em_areapair_synapse_GRAY.py` |
-| FC computation, 124 fields × 3 stimuli (Variant A = cuPC lagged; Variant B = cuPC lagged + PC-contemporaneous + union + LSCM refit) | `stim_run.py` (imports `stim_fc_pipeline.py`) | `calcium_npy/` arrays, `{stim}_timepoints_*.pkl`, `all_unit_areas.csv` | `out/fc/s{s}sc{sc}f{f}_{stim}.npz` (`fcA`, `fcB`), `out/results_gpu{G}_shard{K}.csv` | `python stim_run.py --gpu 0 --nshards 2 --shard 0 --variants AB` (and `--gpu 1 --shard 1`) |
-| earlier summaries of the same FC | `stim_aggregate.py`, `aggregate_and_plot.py` | shards / combined CSV | summary CSVs and plots | – |
+| B (spatial layout, Clip) | `fig3_microns_enrichment/plot_fig3B_cfc_spatial_clip.py` | Version-B FC `<OUT>/fig3_microns_enrichment/out/fc/s{s}sc{sc}f{f}_clip.npz` (key `fcB`, from `stim_run.py`; was staged from gpu-2 into a session scratchpad), calcium metadata `$MICRONS_SAVES/calcium_npy/{ids,fields,unionids}_session*_scan*.npy`, `$MICRONS_META/all_unit_coords.pkl`, `$MICRONS_META/all_unit_areas.csv` | `<OUT>/fig3_microns_enrichment/fig3B_cfc_spatial_clip.{pdf,png}` | `python plot_fig3B_cfc_spatial_clip.py` |
+| C (FC–EM synapse enrichment, 3 methods) | `fig3A_enrichment_stimulus.py` (file name says 3A; it is panel C) | `panelA_perfield_counts.csv` (CITS), `stim_baseline_perfield_granger.csv` (GC2), `stim_baseline_perfield_lagged01.csv` (lagged correlation, lag 0 ∪ lag 1), all from `<OUT>/fig3_microns_enrichment/` (fallback `source_data/`) | `<OUT>/fig3_microns_enrichment/fig3A_enrichment_stimulus.{pdf,png}` | `python fig3A_enrichment_stimulus.py` |
+| C, CITS per-field counts | `panelA_perfield.py` | FC as for B, `$MICRONS_SAVES/{matched_df_v1718,synapses_matcheddf_frompre_v1718}.pkl`, EM field keys `$AROUSAL_FIGS/2026-04-29/fig4/bootstrap_sf_correlation_13sess.npz` | `<OUT>/fig3_microns_enrichment/panelA_perfield_counts.csv` (and `panelA_fc_em_enrichment_versionB.{csv,png}`) | `python panelA_perfield.py` |
+| C, GC2 and lag-1 correlation per-field counts | `stim_baseline_enrichment.py` | calcium `$MICRONS_SAVES/calcium_npy/`, `$MICRONS_SAVES/{stim}_timepoints_*.pkl` (same windows as CITS), FC availability from `<OUT>/fig3_microns_enrichment/out/fc/`, EM tables and keys as above | `<OUT>/fig3_microns_enrichment/stim_baseline_perfield_{granger,lagged1,laggedmax}.csv` | `python stim_baseline_enrichment.py granger` (and `lagged1`) |
+| C, lag 0 ∪ lag 1 correlation counts and paired Δ vs CITS | `corr_l0l1_final.py` (imports `stim_baseline_enrichment` from its own folder) | as above, plus `panelA_perfield_counts.csv` (fallback `source_data/`) | `<OUT>/fig3_microns_enrichment/stim_baseline_perfield_lagged01.csv` | `python corr_l0l1_final.py` |
+| C, pooled CITS fold summary | `panelA_fc_em_enrichment_versionB.py` | as for `panelA_perfield.py` | `<OUT>/fig3_microns_enrichment/panelA_fc_em_enrichment_versionB.{csv,png}` | `python panelA_fc_em_enrichment_versionB.py` |
+| D (within vs between, per stimulus) and F (directed area pairs) | `_plot_arousal_style.py` | `<OUT>/fig3_microns_enrichment/results/stimulus_fc_combined.csv` (concatenation of the `stim_run.py` shards `<OUT>/fig3_microns_enrichment/out/results_gpu{0,1}_shard{0,1}.csv`) | `<OUT>/fig3_microns_enrichment/stim_fc_variant{A,B}_within_between.png`, `stim_fc_variant{A,B}_area_pairs.png`, `report.md` (Variant B is the paper's) | `python _plot_arousal_style.py` |
+| D, statistics quoted in the text (Wilcoxon, rank-biserial r) | `task9.py` | `<OUT>/fig3_microns_enrichment/results/stimulus_fc_combined.csv` | stdout | `python task9.py` |
+| E (EM within vs between) | `bootstrap_em_within_vs_between_versionBsafe.py`, then `plot_sc_within_vs_between_GRAY.py` | EM tables in `$MICRONS_SAVES`, `$MICRONS_META/all_unit_areas.csv`, EM field keys, arousal-pipeline FC universe `$MICRONS_SAVES/{cits_plus_pc_versionBsafe_2026-05-28/,statement_dfs_session*_scan*.pkl}` (see gaps) | `<OUT>/fig3_microns_enrichment/sc_within_vs_between_{synapse,perfield}_versionBsafe.csv`; `<OUT>/fig3_microns_enrichment/sc_within_vs_between_synapse_GRAY.png` (the plot reads the CSV with fallback `source_data/`) | `python bootstrap_em_within_vs_between_versionBsafe.py && python plot_sc_within_vs_between_GRAY.py` |
+| E, "6.3-fold, 95% CI 5.6–7.0" in the text | `task6.py` (Katz CI on pooled counts; it also prints superseded arousal-provenance folds) | `sc_within_vs_between_perfield_versionBsafe.csv` (fallback `source_data/`); the arousal-pipeline `sc_enrichment_perfield_{versionBsafe,granger}.csv` in `$AROUSAL_FIGS/2026-06-01_versionBsafe/exp_analysis/fig1_sc/` | stdout | `python task6.py` |
+| G (EM area pairs) | `bootstrap_em_areapair_synapse_versionBsafe.py`, then `plot_em_areapair_synapse_GRAY.py` | as for E | `<OUT>/fig3_microns_enrichment/em_areapair_synapse_versionBsafe.{csv,npz}`; `<OUT>/fig3_microns_enrichment/em_areapair_synapse_GRAY.png` (the plot needs the NPZ, which is not committed) | `python bootstrap_em_areapair_synapse_versionBsafe.py && python plot_em_areapair_synapse_GRAY.py` |
+| FC computation, 124 fields × 3 stimuli (Variant A = cuPC lagged; Variant B = cuPC lagged + PC-contemporaneous + union + LSCM refit) | `stim_run.py` (imports `stim_fc_pipeline.py`) | `$MICRONS_SAVES/calcium_npy/` arrays, `$MICRONS_SAVES/{stim}_timepoints_*.pkl`, `$MICRONS_META/all_unit_areas.csv` | `<OUT>/fig3_microns_enrichment/out/fc/s{s}sc{sc}f{f}_{stim}.npz` (`fcA`, `fcB`), `<OUT>/fig3_microns_enrichment/out/results_gpu{G}_shard{K}.csv` | `python stim_run.py --gpu 0 --nshards 2 --shard 0 --variants AB` (and `--gpu 1 --shard 1`) |
+| earlier summaries of the same FC | `stim_aggregate.py`, `aggregate_and_plot.py` | shards / combined CSV | `<OUT>/fig3_microns_enrichment/out/{summary,stats}.csv`, `out/figures/`; `<OUT>/fig3_microns_enrichment/stim_fc_variant*.png` | – |
 
-`data_prep/` (MICrONS inputs, run in order):
+`data_prep/` (MICrONS inputs, run in order). Every step writes to
+`<OUT>/fig3_microns_enrichment/data_prep/` (logs in its `logs/` subfolder). A step that needs the
+previous step's file reads it from there if present, and otherwise from `$MICRONS_SAVES`.
+Upstream pickles (`merged_df_*`, `filtered_*_neurons_*`) are read from `$MICRONS_SAVES`.
 
 1. `fetch_all_areas.py`, `fetch_all_coords.py`: DataJoint (`microns_phase3.nda.AreaMembership`, `nda.ScanUnit`) → `all_unit_areas.csv`, `all_unit_coords.pkl`. Needs `DJ_USER` and `DJ_PASS`.
-2. `cits_finalize.ipynb`, cells 3–5: CAVE `coregistration_manual_v4` at materialization 1181 → `matched_df.pkl`. Cells 6–8 query areas and v1181 synapses (superseded by step 4). The rest of the notebook is unrelated exploration.
+2. `cits_finalize.ipynb`, cells 3–5: CAVE `coregistration_manual_v4` at materialization 1181 → `matched_df.pkl`. Cells 6–8 query areas and v1181 synapses (superseded by step 4). The rest of the notebook is unrelated exploration. Run it from its folder.
 3. `build_matched_df_v1718.py`: re-roots `matched_df.pkl` supervoxels to materialization 1718 → `matched_df_v1718.pkl`.
 4. `build_synapses_pkl_v1718.py`: `synapses_pni_2` at materialization 1718 for every matched presynaptic root → `synapses_matcheddf_frompre_v1718.pkl`.
 5. `_convert_merged.py <merged_df_session{s}_scan{sc}.pkl>`, `_extract_idfield.py`, `_extract_unionids.py`: calcium traces and unit metadata → `calcium_npy/{calcium,ids,fields,unionids,units}_session{s}_scan{sc}.npy`.
+
+The Fig 3 scripts read these files from `$MICRONS_SAVES` and `$MICRONS_META`. To use freshly
+built ones, set both variables to `<OUT>/fig3_microns_enrichment/data_prep` and put the other
+`$MICRONS_SAVES` inputs (`{stim}_timepoints_*.pkl`, `statement_dfs_*.pkl`,
+`cits_plus_pc_versionBsafe_2026-05-28/`) next to them.
 
 The upstream pickles `merged_df_session*_scan*.pkl`, `{clip,Monet,Trippy}_timepoints_session*_scan*.pkl`
 and `filtered_{stim}_neurons_session*_scan*.pkl` are not produced by any script here (see [Known gaps](#known-gaps-and-discrepancies)).
@@ -170,39 +187,43 @@ and `filtered_{stim}_neurons_session*_scan*.pkl` are not produced by any script 
 
 | Panel | Script(s) | Inputs | Outputs | Command |
 |---|---|---|---|---|
-| graph + population records | `fig4_motifs/run_motif_population_v2.py` (reproducible lagged CITS graph `fast_cits_pcorr`, τ = 1, α = 0.05) | `citsproject/data/ID791319847_natural_scenes_bin_0.01_X_idx-0.p`, `..._units2use_stim_natural_scenes.p` | `<FIGS>/motif_population_v2_records.pkl`, `motif_population_v2.json`, `motif_population_v2_adjacency.npy` | `python run_motif_population_v2.py` |
-| A (worked examples) | `plot_motif_examples_scatter_v2.py` | records + data above | `motif_examples_scatter_v2.{png,pdf}` | `python plot_motif_examples_scatter_v2.py` |
-| B–D (adjacent / non-adjacent / collider populations) | `plot_motif_population_v2_split.py` | same | `motif_population_v2_{a,b,c}.{png,pdf}` | `python plot_motif_population_v2_split.py` |
-| combined population figure (not used) | `plot_motif_population_v2.py` | same | `motif_population_v2.{png,pdf}`, `motif_population_detail_v2.png` | – |
-| legacy motif numbers quoted in the caption | `legacy/script copy.ipynb` (cells 6–14: triple and quadruple searches), `legacy/run_lagged_search.py` | original CITS results in `citsproject/save/` | – | – |
+| graph + population records | `fig4_motifs/run_motif_population_v2.py` (reproducible lagged CITS graph `fast_cits_pcorr`, τ = 1, α = 0.05) | `$NEUROPIXELS_DATA/ID791319847_natural_scenes_bin_0.01_X_idx-0.p`, `..._units2use_stim_natural_scenes.p` | `<OUT>/fig4_motifs/motif_population_v2_records.pkl`, `motif_population_v2.json`, `motif_population_v2_adjacency.npy` | `python run_motif_population_v2.py` |
+| A (worked examples) | `plot_motif_examples_scatter_v2.py` | records + data above | `<OUT>/fig4_motifs/motif_examples_scatter_v2.{png,pdf}` | `python plot_motif_examples_scatter_v2.py` |
+| B–D (adjacent / non-adjacent / collider populations) | `plot_motif_population_v2_split.py` | same | `<OUT>/fig4_motifs/motif_population_v2_{a,b,c}.{png,pdf}` | `python plot_motif_population_v2_split.py` |
+| combined population figure (not used) | `plot_motif_population_v2.py` | same | `<OUT>/fig4_motifs/motif_population_v2.{png,pdf}`, `motif_population_detail_v2.png` | – |
+| legacy motif numbers quoted in the caption | `legacy/script copy.ipynb` (cells 6–14: triple and quadruple searches), `legacy/run_lagged_search.py` | `$NEUROPIXELS_DATA`; original CITS results (`citsproject/save/`), expected in `<OUT>/fig4_motifs/legacy/save/` | `<OUT>/fig4_motifs/legacy/` (`lagged_triples_results_*.pkl`, `figs/panels/*.png`) | – |
 
 ### Fig 5 (`fig:resneuropixels`, `fig:stimtypegraphs`): Allen Neuropixels, session 791319847
 
 | Panel | Script(s) | Inputs | Outputs | Command |
 |---|---|---|---|---|
-| data: 10 ms binning, active-unit masks, 68-unit union frame | `notebooks/script.ipynb` cell 44 (AllenSDK download, presentation-wise 10 ms counts → `ID791319847_{stim}_bin_0.01_P.p`, masks `..._units2use_stim_{stim}.p`, units nonzero in >20% of bins); cell 6 (union of active units across the 4 stimuli, ordered by `ecephys_structure_acronym`) | Allen Brain Observatory cache | `citsproject/data/*` | run the notebook cells |
-| A, CITS column (Version B on the first 90 s of concatenated presentations) | `_montage_cc_cits.py` | `P_raw_{stim}.npy`, masks, `cits_v2_union_{units,labels}.npy` | `cmp_cc_{stim}_CITS_68.npy` | `python _montage_cc_cits.py` |
-| A, GC2 column (R bruceR conditional Granger, VAR(1)) | `_montage_cc_gc2.py` | same | `cmp_cc_{stim}_GC2_68.npy`, `cmp_cc_{stim}_GC2adj_68.npy` | `conda activate gc2r && python _montage_cc_gc2.py` |
-| A, Pearson and GC1 columns; significance masking of all four | `_montage_sig_magnitude.py` | same + the `cmp_cc_*` arrays | `cmp_ccsig_{stim}_{CORR,GC1,GC2,CITS}_68.npy` | `python _montage_sig_magnitude.py` |
-| A (render) | `render_fine_ccsig.py` | `cmp_ccsig_*` | `cmp_montage_4col_ccsig.png`, `region_legend_fine.png` | `python render_fine_ccsig.py` |
+| data: 10 ms binning, active-unit masks, 68-unit union frame | `notebooks/script.ipynb` cell 44 (AllenSDK download, presentation-wise 10 ms counts → `ID791319847_{stim}_bin_0.01_P.p`, masks `..._units2use_stim_{stim}.p`, units nonzero in >20% of bins); cell 6 (union of active units across the 4 stimuli, ordered by `ecephys_structure_acronym`) | Allen Brain Observatory cache (`$NEUROPIXELS_CACHE`) | `<OUT>/fig5_neuropixels/notebooks/data/*` (was `citsproject/data/`; the scripts read `$NEUROPIXELS_DATA`) | run the notebook cells from `notebooks/` |
+| A, CITS column (Version B on the first 90 s of concatenated presentations) | `_montage_cc_cits.py` | `$NEUROPIXELS_DATA/P_raw_{stim}.npy`, masks, `cits_v2_union_{units,labels}.npy` (from `<OUT>/fig5_neuropixels/` if present, else `$NEUROPIXELS_DATA`) | `<OUT>/fig5_neuropixels/cmp_cc_{stim}_CITS_68.npy` | `python _montage_cc_cits.py` |
+| A, GC2 column (R bruceR conditional Granger, VAR(1)) | `_montage_cc_gc2.py` | same | `<OUT>/fig5_neuropixels/cmp_cc_{stim}_GC2_68.npy`, `cmp_cc_{stim}_GC2adj_68.npy` | `conda activate gc2r && python _montage_cc_gc2.py` |
+| A, Pearson and GC1 columns; significance masking of all four | `_montage_sig_magnitude.py` | same + the `cmp_cc_*` arrays | `<OUT>/fig5_neuropixels/cmp_ccsig_{stim}_{CORR,GC1,GC2,CITS}_68.npy` | `python _montage_sig_magnitude.py` |
+| A (render) | `render_fine_ccsig.py` | `cmp_ccsig_*` | `<OUT>/fig5_neuropixels/cmp_montage_4col_ccsig.png`, `region_legend_fine.png` | `python render_fine_ccsig.py` |
 | text: density, Pearson support, \|r\| percentile | `_verify_fig5_stats.py` | `cmp_ccsig_*`, `P_raw_*` | stdout | `python _verify_fig5_stats.py` |
-| B, C (per-90 s-window Version B, edges in ≥90% of windows) | `_stimtypes_90swin_compute.py` (imports `_neuropixels_versionB_pooled.py`) | `P_raw_{stim}.npy`, masks, union frame | `cits_v2_directedB_W90WIN_{stim}_{fwd,w,pboot}68.npy` | `python _stimtypes_90swin_compute.py` |
-| B, C (render) | `regen_cfc_stimtypes.py` | the W90WIN arrays | `cfc_stimtypes_directed_th90_w90win90_thin.{pdf,png}` | `CFC_PREFIX=cits_v2_directedB_W90WIN CFC_THRESH=0.9 CFC_OUTTAG=_w90win90_thin python regen_cfc_stimtypes.py` |
-| text: ADF stationarity (116 series, BH-FDR) | `task7.py` | `citsproject/data/` | stdout | `python task7.py` |
+| B, C (per-90 s-window Version B, edges in ≥90% of windows) | `_stimtypes_90swin_compute.py` (imports `_neuropixels_versionB_pooled.py`) | `P_raw_{stim}.npy`, masks, union frame | `<OUT>/fig5_neuropixels/cits_v2_directedB_W90WIN_{stim}_{fwd,w,pboot}68.npy` | `python _stimtypes_90swin_compute.py` |
+| B, C (render) | `regen_cfc_stimtypes.py` | the W90WIN arrays | `<OUT>/fig5_neuropixels/cfc_stimtypes_directed_th90_w90win90_thin.{pdf,png}` (per-panel PNGs and a preview in `<OUT>/fig5_neuropixels/panels/`) | `CFC_PREFIX=cits_v2_directedB_W90WIN CFC_THRESH=0.9 CFC_OUTTAG=_w90win90_thin python regen_cfc_stimtypes.py` |
+| text: ADF stationarity (116 series, BH-FDR) | `task7.py` | `$NEUROPIXELS_DATA` | stdout | `python task7.py` |
 
 `notebooks/script_matchbarplot.ipynb` holds the original plotting code (graph layout cell 24,
 region bars cell 28) that `regen_cfc_stimtypes.py` reproduces verbatim. Its cell 3 imports
 `ace_tools`, a helper that is not installable. `notebooks/neuropixels_testresults.py` is
-imported by the notebooks. `legacy/scc_clustering.ipynb` is an earlier graph-plotting notebook
+imported by the notebooks. The three Neuropixels notebooks read and write their data folder
+`<OUT>/fig5_neuropixels/notebooks/data/` (was `data/`), results `<OUT>/fig5_neuropixels/notebooks/save/`
+(was `save/` and `D:\...\mice-aibs\save\`), and figures under `<OUT>/fig5_neuropixels/`. To run
+them on existing prepared data, copy or link that data into `<OUT>/fig5_neuropixels/notebooks/data/`;
+to feed the scripts with freshly prepared data, set `NEUROPIXELS_DATA` to that folder. `legacy/scc_clustering.ipynb` is an earlier graph-plotting notebook
 and does not feed the final figure.
 
 ### Supplementary material
 
 | Item | Script(s) | Inputs | Outputs | Command |
 |---|---|---|---|---|
-| `tab:tau_saturation_supp` (CS of CITS at τ = 1, 2, 3; 20 sims; GPU RCIT, \|S\| ≤ 5) | `supplement/tau_sensitivity_gpu.py` | `simulation_benchmark_fc_methods_v3.simulate_extended` | `<DIRECTED_CS>/simulation_results_directed_tau_sensitivity_gpu.csv` (the CTRNN rows are not tabulated) | `python tau_sensitivity_gpu.py` |
+| `tab:tau_saturation_supp` (CS of CITS at τ = 1, 2, 3; 20 sims; GPU RCIT, \|S\| ≤ 5) | `supplement/tau_sensitivity_gpu.py` | `simulation_benchmark_fc_methods_v3.simulate_extended` | `<OUT>/supplement/simulation_results_directed_tau_sensitivity_gpu.csv` (the CTRNN rows are not tabulated) | `python tau_sensitivity_gpu.py` |
 | `tab:selfedge_supp` | the `_spiking_pmatched_*` runs in `table1_baselines/` | – | the `self` fractions in the table above (TPC 88% / 54% = mean over motifs; PCMCI+ 16%; LPCMCI 14%) | see Table 1 |
-| `fig:scaling_supp` (runtime vs p at each N) | `supplement/_make_supp_figure.py` | `grid_v3.csv`, `grid_ext.csv` (from `fig1_scaling/`) | `scaling_grid_supp.png`, `<FIGS>/scaling_supp.{png,pdf}` | `python _make_supp_figure.py` |
+| `fig:scaling_supp` (runtime vs p at each N) | `supplement/_make_supp_figure.py` | `grid_v3.csv`, `grid_ext.csv` from `<OUT>/fig1_scaling/` (fallback `fig1_scaling/source_data/`) | `<OUT>/supplement/scaling_grid_supp.png`, `<OUT>/supplement/scaling_supp.{png,pdf}` | `python _make_supp_figure.py` |
 | `tab:cs_supp` (CS by method, N, p; mean of 3 seeds) | `supplement/make_tab_cs_supp.py` | `fig1_scaling/source_data/cits_scaling_aggregated.csv` | table body (LaTeX), identical to the paper | `python make_tab_cs_supp.py > tab_cs_supp.tex` |
 
 `make_tab_cs_supp.py` prints every cell of `tab:cs_supp` (verified identical to the paper):
@@ -254,42 +275,99 @@ Auxiliary environments:
 GPU:
 
 - cuPC: <https://github.com/LIS-Laboratory/cupc> (commit 8ed927c), built with
-  `nvcc -O3 --shared -Xcompiler -fPIC -o Skeleton.so cuPC-S.cu` (CUDA 12.2). Set its location in
-  `shared/_cupc_wrapper.py` (`_CUPC_DIR`); some scripts also set the `CUPC_DIR` environment variable.
+  `nvcc -O3 --shared -Xcompiler -fPIC -o Skeleton.so cuPC-S.cu` (CUDA 12.2). Point the `CUPC_DIR`
+  environment variable at the folder holding `Skeleton.so` (default `~/repos/cupc`); both the
+  `cits` package and `shared/_cupc_wrapper.py` read it.
 - PyTorch 2.9.1 with CUDA 12.8 wheels for the RCIT and HSIC kernels.
 - The scaling benchmark used one exclusive GPU for CITS and 32 CPU threads for the baselines.
   Every grid cell ran in a fresh subprocess; never fork after NumPy/BLAS initialization.
 
 ---
 
-## Paths to edit
+## Environment variables
 
-The scripts hard-code data and output roots. Edit these before running. `<SCRATCHPAD>` is
-`/tmp/claude-1004/-home-rbiswas1-microns/48b8216b-5c45-4c8f-923d-dc312e0dbb46/scratchpad`, an
-ephemeral session directory; copies of the four per-field CSVs that lived there are in
-`fig3_microns_enrichment/source_data/`.
+All input and output locations are defined once, in `shared/paths.py`. Each root is an
+environment variable with a default inside the repository, so a fresh clone runs without editing
+any script. Every script puts `shared/` on `sys.path` itself and imports CITS from the installed
+`cits` package (no script prepends a local CITS checkout any more).
 
-| Root | Meaning | Scripts |
+| Variable | Default | Holds |
 |---|---|---|
-| `/home/rbiswas1/repos/cits` | local CITS checkout prepended to `sys.path` | most simulation scripts in `fig1_scaling/`, `fig2_simulations/`, `table1_baselines/`, `supplement/`, `fig4_motifs/`, `fig5_neuropixels/`, `exploratory/`; `shared/simulation_benchmark_fc_methods{,_v3}.py` |
-| `/home/rbiswas1/repos/cupc` (`Skeleton.so`) | cuPC library | `shared/_cupc_wrapper.py`; `CUPC_DIR` default in `_fig2_cits_noise_{perregime,nlng}.py`, `_sd_ar_lingauss_cupc.py`, `_sd_spk_cits_cupc_convdia.py`; `sys.path` in `stim_fc_pipeline.py`, `_montage_cc_cits.py`, `_neuropixels_versionB_pooled.py`, `_stimtypes_90swin_compute.py` |
-| `/home/rbiswas1/microns/analysis/functional_circuitry` | original helper directory (now `shared/`) | `stim_fc_pipeline.py`, `_montage_cc_cits.py`, `_neuropixels_versionB_pooled.py`, `_stimtypes_90swin_compute.py`, `exploratory/latent_confounders/_latent_testbed.py`, `shared/cits_plus_pc_contemporaneous_test.py` |
-| `/home/rbiswas1/microns/CITS_manuscript/figures` (and `.../final_figures_2026-08-31`) | figure outputs; Neuropixels intermediate arrays (`cits_v2_*`, `cmp_*`) | `_make_scaling_figure.py`, `_make_supp_figure.py`, `_fig2_orig_assemble.py`, `plot_spiking_motifs.py`, `fig3A_enrichment_stimulus.py`, `plot_fig3B_cfc_spatial_clip.py`, all of `fig4_motifs/*.py`, all of `fig5_neuropixels/*.py` except `task7.py` |
-| `/home/rbiswas1/microns/arousal_paper_overleaf/figures/2026-06-06_directed_cs` | per-seed benchmark CSVs | `directed_benchmark_{cpu,gpu,kernel_gc,lpcmci}.py`, `_sd_assemble.py`, `supplement/tau_sensitivity_gpu.py` |
-| `/home/rbiswas1/microns/arousal_paper_overleaf/figures/2026-06-02_simulation_benchmark*` | outputs of the modules' own `__main__` benchmarks (not used when imported) | `shared/simulation_benchmark_fc_methods{,_v3}.py` |
-| `/home/rbiswas1/microns/arousal_paper_overleaf/figures/2026-06-01_versionBsafe/...`, `.../2026-04-29/fig4/bootstrap_sf_correlation_13sess.npz` | EM outputs (fig1_sc, fig2) and the 39 EM field keys | `bootstrap_em_*_versionBsafe.py`, `plot_*_GRAY.py`, `task6.py`, `panelA_perfield.py`, `panelA_fc_em_enrichment_versionB.py`, `stim_baseline_enrichment.py` |
-| `/home/rbiswas1/microns/arousal_paper_overleaf/figures/2026-07-06_hsic_gpu_validation` | HSIC validation outputs | `exploratory/hsic_gpu/*` |
-| `/home/rbiswas1/microns/analysis/stimulus_fc` (`out/`, `results/`) | stimulus-FC outputs | `stim_run.py`, `stim_aggregate.py`, `task9.py`, `plot_*_GRAY.py`, `panelA_fc_em_enrichment_versionB.py`, `panelA_perfield.py`; `_plot_arousal_style.py` and `aggregate_and_plot.py` read `results/stimulus_fc_combined.csv` relative to their directory / the working directory |
-| `/home/rbiswas1/microns_data/saves` (`calcium_npy/`, `*_timepoints_*.pkl`) | MICrONS inputs on the GPU server | `stim_fc_pipeline.py` |
-| `/data1/rb1/microns/saves/` | MICrONS inputs and EM tables (`calcium_npy/`, `merged_df_*.pkl`, `matched_df*.pkl`, `synapses_matcheddf_frompre_v1718.pkl`, `statement_dfs_*.pkl`, `cits_plus_pc_versionBsafe_2026-05-28/`) | `data_prep/*`, `stim_baseline_enrichment.py`, `panelA_perfield.py`, `panelA_fc_em_enrichment_versionB.py`, `bootstrap_em_*_versionBsafe.py`, `shared/cits_plus_pc_contemporaneous_test.py` |
-| `/home/rbiswas1/microns/all_unit_areas.csv`, `/home/rbiswas1/microns/all_unit_coords.pkl` | MICrONS unit areas and coordinates | `fetch_all_*.py` (outputs), `stim_fc_pipeline.py`, `plot_fig3B_cfc_spatial_clip.py`, `bootstrap_em_*_versionBsafe.py`, `shared/cits_plus_pc_contemporaneous_test.py` |
-| `<SCRATCHPAD>` (`panelA_stage/fc`, `panelA_stage/npy`, per-field CSVs) | staged FC and per-field counts for Fig 3B/3C; scratch PNGs | `fig3A_enrichment_stimulus.py`, `panelA_perfield.py`, `panelA_fc_em_enrichment_versionB.py`, `stim_baseline_enrichment.py`, `corr_l0l1_final.py`, `plot_fig3B_cfc_spatial_clip.py`, `regen_cfc_stimtypes.py` (per-panel PNGs that it pastes into the composite, and a preview) |
-| `/home/rbiswas1/citsproject/data` | Neuropixels intermediate data (`*_bin_0.01_P.p`, `P_raw_*.npy`, `*_units2use_*.p`, `*_X_idx-*.p`) | all of `fig4_motifs/*.py`; `_montage_cc_cits.py`, `_montage_cc_gc2.py`, `_montage_sig_magnitude.py`, `_neuropixels_versionB_pooled.py`, `_stimtypes_90swin_compute.py`, `_verify_fig5_stats.py`, `task7.py` |
-| `data/`, `save/` (relative) and `D:\OneDrive - UW\...` (Windows) | original Neuropixels pipeline paths | `fig5_neuropixels/notebooks/*`, `fig5_neuropixels/legacy/scc_clustering.ipynb`, `fig4_motifs/legacy/*` |
-| `/tmp/cave_migration_logs/` | log files | `build_matched_df_v1718.py`, `build_synapses_pkl_v1718.py` |
-| `/tmp/cits_pc_skeleton_prototype.py` (missing) | serial reference used by validation helpers only | `shared/cits_pc_skeleton_{numba,optimized}.py` |
-| `/home/rbiswas1/miniconda3/envs/tigra/bin/python` | interpreter named in a usage string | `shared/_glm_suite_baselines.py` |
-| working directory | `grid_v3.csv`, `grid_ext.csv`, `grid_seeds_ext.csv`, `_feasible_cells.csv`; `_fig2_*` / `_sd_*` CSVs are written to and read from the working or script directory | `fig1_scaling/*`, `supplement/_make_supp_figure.py`, `fig2_simulations/*`, `table1_baselines/_sd_*` |
+| `CITS_PAPER_OUT` | `<repo>/outputs` | **Every file a script writes.** Layout: `<OUT>/<figure folder>/<original file name>`, e.g. `outputs/fig1_scaling/grid_v3.csv`, `outputs/fig3_microns_enrichment/out/fc/*.npz`, `outputs/fig3_microns_enrichment/data_prep/calcium_npy/*.npy`. Also the place where a script looks first for an intermediate made by another script of this repository. |
+| `CITS_PAPER_DATA` | `<repo>/data` | Parent of the input roots below (only used for their defaults). |
+| `MICRONS_SAVES` | `$CITS_PAPER_DATA/microns_saves` | MICrONS calcium arrays and EM tables: `calcium_npy/`, `merged_df_session*_scan*.pkl`, `filtered_{stim}_neurons_*.pkl`, `{clip,Monet,Trippy}_timepoints_*.pkl`, `matched_df*.pkl`, `synapses_matcheddf_frompre_v1718.pkl`, `statement_dfs_session*_scan*.pkl`, `cits_plus_pc_versionBsafe_2026-05-28/`. |
+| `MICRONS_META` | `$CITS_PAPER_DATA/microns_meta` | `all_unit_areas.csv`, `all_unit_coords.pkl`. |
+| `AROUSAL_FIGS` | `$CITS_PAPER_DATA/arousal_figures` | Outputs of the companion arousal-paper pipeline that Fig 3 reads: the 39 EM field keys `2026-04-29/fig4/bootstrap_sf_correlation_13sess.npz`, and (for `task6.py`) `2026-06-01_versionBsafe/exp_analysis/fig1_sc/sc_enrichment_perfield_{versionBsafe,granger}.csv`. `_sd_assemble.py` also falls back to `2026-06-06_directed_cs/` here for the per-seed baseline CSVs. |
+| `NEUROPIXELS_DATA` | `$CITS_PAPER_DATA/neuropixels` | Prepared Allen Neuropixels data for session 791319847: `ID791319847_{stim}_bin_0.01_P.p`, `..._units2use_stim_{stim}.p`, `..._bin_0.01_X_idx-{i}.p`, `P_raw_{stim}.npy`, and the union frame `cits_v2_union_{units,labels}.npy`. |
+| `NEUROPIXELS_CACHE` | `$CITS_PAPER_DATA/allen_cache` | AllenSDK `EcephysProjectCache` folder (`manifest.json`) used by the Neuropixels notebooks. |
+| `CUPC_DIR` | `~/repos/cupc` | Folder with the compiled cuPC library `Skeleton.so` (same default as the `cits` package). |
+
+Helpers in `shared/paths.py`: `out(subdir, name)` and `outdir(subdir)` return paths under
+`CITS_PAPER_OUT` and create the folder; `data(...)`, `microns_saves(...)`, `microns_meta(...)`,
+`arousal_figs(...)` and `neuropixels(...)` build input paths; `result(subdir, name, fallback=None)`
+returns `<OUT>/<subdir>/<name>` if it exists, else the fallback (default: the committed
+`<subdir>/source_data/<name>`).
+
+### Reproducing the paper's runs exactly (author's machine)
+
+Point the input roots at the original data layout. Outputs then go to a fresh folder, and nothing
+in the original directories is overwritten:
+
+```bash
+export CITS_PAPER_OUT=$HOME/cits-paper-outputs
+export MICRONS_SAVES=/data1/rb1/microns/saves             # on gpu-2: /home/rbiswas1/microns_data/saves
+export MICRONS_META=/home/rbiswas1/microns                # all_unit_areas.csv, all_unit_coords.pkl
+export AROUSAL_FIGS=/home/rbiswas1/microns/arousal_paper_overleaf/figures
+export NEUROPIXELS_DATA=/home/rbiswas1/citsproject/data
+export CUPC_DIR=/home/rbiswas1/repos/cupc
+```
+
+A few intermediates lived outside these roots (in the manuscript figure folder, the stimulus-FC
+folder or a session scratchpad). To reuse them instead of recomputing, copy or link them into the
+output tree:
+
+| Original location | Link or copy to |
+|---|---|
+| `/home/rbiswas1/microns/analysis/stimulus_fc/out/` (`fc/*.npz`, shard CSVs; on gpu-2) | `$CITS_PAPER_OUT/fig3_microns_enrichment/out/` |
+| `/home/rbiswas1/microns/analysis/stimulus_fc/results/stimulus_fc_combined.csv` | `$CITS_PAPER_OUT/fig3_microns_enrichment/results/` |
+| `/home/rbiswas1/microns/CITS_manuscript/figures/cits_v2_union_{units,labels}.npy` | `$NEUROPIXELS_DATA/` or `$CITS_PAPER_OUT/fig5_neuropixels/` |
+| `/home/rbiswas1/microns/CITS_manuscript/figures/{cmp_*,cits_v2_*}.npy` (Fig 5 arrays) | `$CITS_PAPER_OUT/fig5_neuropixels/` |
+| `/home/rbiswas1/microns/CITS_manuscript/figures/motif_population_v2_records.pkl` | `$CITS_PAPER_OUT/fig4_motifs/` |
+| `/home/rbiswas1/citsproject/save/` (legacy CITS results) | `$CITS_PAPER_OUT/fig4_motifs/legacy/save/` and `$CITS_PAPER_OUT/fig5_neuropixels/notebooks/save/` |
+| `/home/rbiswas1/citsproject/data/` (for the Neuropixels notebooks) | `$CITS_PAPER_OUT/fig5_neuropixels/notebooks/data/` |
+| `/home/rbiswas1/microns/analysis/functional_circuitry/{grid_v3,grid_ext,grid_seeds_ext,_feasible_cells}.csv`, `_fig2_*`, `_sd_*` CSVs/JSON | `$CITS_PAPER_OUT/fig1_scaling/`, `fig2_simulations/`, `table1_baselines/` |
+
+The staged calcium metadata that Fig 3B/3C read from the session scratchpad
+(`panelA_stage/npy/{ids,fields,unionids}_*.npy`) is now read from `$MICRONS_SAVES/calcium_npy/`
+(the files that `data_prep/` builds; the staged copies were taken from that folder on gpu-2).
+
+### Where the old hard-coded paths went
+
+| Old path | Now |
+|---|---|
+| `sys.path` insert of `/home/rbiswas1/repos/cits` | removed; the installed `cits` package is used |
+| `sys.path` insert of `/home/rbiswas1/microns/analysis/functional_circuitry` | the repository's `shared/` |
+| `sys.path` insert of `/home/rbiswas1/repos/cupc` | removed (it holds no Python module); cuPC is found through `CUPC_DIR` |
+| `sys.path` insert of `.../CITS_manuscript/figures` or `.../analysis/stimulus_fc` | the script's own folder |
+| `/home/rbiswas1/microns/CITS_manuscript/figures` (and `final_figures_2026-08-31/`) | `<OUT>/<figure folder>/` |
+| `/home/rbiswas1/microns/arousal_paper_overleaf/figures/2026-06-06_directed_cs` | `<OUT>/table1_baselines/` (directed benchmarks), `<OUT>/supplement/` (τ sweep) |
+| `/home/rbiswas1/microns/arousal_paper_overleaf/figures/2026-06-01_versionBsafe/...` (EM outputs) | `<OUT>/fig3_microns_enrichment/` |
+| `/home/rbiswas1/microns/arousal_paper_overleaf/figures/2026-07-06_hsic_gpu_validation` | `<OUT>/exploratory/hsic_gpu/` |
+| `/home/rbiswas1/microns/arousal_paper_overleaf/figures/2026-06-02_simulation_benchmark*`, `2026-05-23` | `<OUT>/shared/...` (outputs of the modules' own `__main__` runs) |
+| other `.../arousal_paper_overleaf/figures/...` inputs | `$AROUSAL_FIGS/...` |
+| `/home/rbiswas1/microns/analysis/stimulus_fc` (`out/`, `results/`, panel PNG/CSV) | `<OUT>/fig3_microns_enrichment/` (`out/`, `results/`) |
+| `/data1/rb1/microns/saves/`, `/home/rbiswas1/microns_data/saves` | `$MICRONS_SAVES` (reads); data-prep writes go to `<OUT>/fig3_microns_enrichment/data_prep/` |
+| `/data1/rb1/microns/saves/cits_pc_contemporaneous_2026-05-23/` (cache) | `<OUT>/shared/cits_pc_contemporaneous_2026-05-23/` |
+| `/home/rbiswas1/microns/all_unit_{areas.csv,coords.pkl}` | `$MICRONS_META` (reads); `fetch_all_*.py` write to `<OUT>/fig3_microns_enrichment/data_prep/` |
+| session scratchpad `/tmp/claude-1004/...` (staged FC, per-field CSVs, scratch PNGs) | the producing script's output path (`<OUT>/fig3_microns_enrichment/out/fc/`, `<OUT>/fig3_microns_enrichment/*.csv`, `<OUT>/fig5_neuropixels/panels/`) |
+| `/home/rbiswas1/citsproject/data` | `$NEUROPIXELS_DATA` |
+| `data/`, `save/`, `figs/`, `D:\OneDrive - UW\...` in the Neuropixels notebooks | `<OUT>/fig5_neuropixels/notebooks/{data,save,figs,savedir}/` (`fig4_motifs/legacy/script copy.ipynb` reads `$NEUROPIXELS_DATA`); AllenSDK manifest in `$NEUROPIXELS_CACHE` |
+| `/tmp/cave_migration_logs/` | `<OUT>/fig3_microns_enrichment/data_prep/logs/` |
+| working directory (`grid_*.csv`, `_fig2_*`, `_sd_*`) | `<OUT>/fig1_scaling/`, `<OUT>/fig2_simulations/`, `<OUT>/table1_baselines/` |
+
+Still unresolved (see `CHANGES_paths.md`): `/tmp/cits_pc_skeleton_prototype.py`, a missing serial
+reference loaded only by the HSIC branch of `shared/cits_pc_skeleton_{numba,optimized}.py`.
+`shared/_glm_suite_baselines.py` names the `tigra` interpreter only in a usage string.
 
 ## Credential redactions
 
@@ -343,7 +421,8 @@ Excluded on purpose:
   and all intermediate matrices (`cmp_*`, `cits_v2_*`, motif records).
 - **JSON and logs:** `_fig2_edgesign.json`, `_fig2_edgedir.json`, `motif_population_v2.json`,
   and run logs. The spiking-benchmark log values are transcribed above.
-- **Per-seed baseline CSVs** in `<DIRECTED_CS>`; only their assembled table was copied.
+- **Per-seed baseline CSVs** of the `directed_benchmark_*.py` runs (originally in
+  `arousal_paper_overleaf/figures/2026-06-06_directed_cs/`); only their assembled table was copied.
 - **All images and PDFs.**
 
 ---
@@ -393,7 +472,8 @@ Items marked **(check)** may need a manuscript or figure fix before publication.
 11. **Unsaved inline steps.**
     - `cits_scaling_aggregated.csv` and the `tab:cs_supp` LaTeX table.
     - `_feasible_cells.csv`.
-    - `results/stimulus_fc_combined.csv` (concatenation of the two shards).
+    - `results/stimulus_fc_combined.csv` (concatenation of the two shards; place it at
+      `<OUT>/fig3_microns_enrichment/results/stimulus_fc_combined.csv`).
     - `P_raw_{stim}.npy`: NumPy copies of `ID791319847_{stim}_bin_0.01_P.p`, same sizes up to the pickle overhead.
     - `cits_v2_union_{units,labels}.npy`: same logic as `notebooks/script.ipynb` cell 6.
     - The environment settings of the "thin" Fig 5B render (`CFC_MAXW` / `CFC_MINW`; the script defaults 2.6 / 0.9 are assumed).
@@ -451,8 +531,10 @@ Items marked **(check)** may need a manuscript or figure fix before publication.
 ## Appendix: file provenance
 
 Each file in this repository was copied from the location below on 2026-10-01; the originals
-were not moved or modified. `~` is `/home/rbiswas1`; `<SCRATCHPAD>` is the ephemeral session
-directory named in [Paths to edit](#paths-to-edit). Unless noted, the copy is byte-identical.
+were not moved or modified. `~` is `/home/rbiswas1`; `<SCRATCHPAD>` is the ephemeral Claude
+session directory `/tmp/claude-1004/-home-rbiswas1-microns/48b8216b-5c45-4c8f-923d-dc312e0dbb46/scratchpad`.
+Unless noted, the copy is byte-identical to the original as of 2026-10-01; on branch
+`paths-config` the paths inside the scripts were then changed (see `CHANGES_paths.md`).
 
 <details>
 <summary>Show the full list</summary>

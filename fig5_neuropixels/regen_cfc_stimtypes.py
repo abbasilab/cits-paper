@@ -36,6 +36,7 @@ is lagged partial-correlation r, so the edge-thickness legend is auto-scaled and
 labelled with the actual r values.
 
 Output: figures/cfc_stimtypes_v2.pdf  (original NOT overwritten)
+(now under $CITS_PAPER_OUT/fig5_neuropixels/, see shared/paths.py)
 """
 import os, sys, subprocess
 import numpy as np
@@ -50,8 +51,11 @@ from matplotlib.lines import Line2D
 import networkx as nx
 from PIL import Image, ImageDraw, ImageFont
 
-FIG = '/home/rbiswas1/microns/CITS_manuscript/figures'
-SCRATCH = '/tmp/claude-1004/-home-rbiswas1-microns/48b8216b-5c45-4c8f-923d-dc312e0dbb46/scratchpad'
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'shared')))
+from paths import outdir as _outdir, result, neuropixels
+def _union(f): return result('fig5_neuropixels', f, fallback=neuropixels(f))   # cits_v2_union_*.npy: $CITS_PAPER_OUT/fig5_neuropixels/ if present, else $NEUROPIXELS_DATA
+FIG = _outdir('fig5_neuropixels')                 # was CITS_manuscript/figures (inputs from _stimtypes_90swin_compute.py + outputs)
+SCRATCH = _outdir('fig5_neuropixels/panels')      # per-panel PNGs + preview (was a session scratchpad)
 STIMS = ['natural_scenes', 'static_gratings', 'gabors']
 STIM_TITLE = {'natural_scenes': 'Natural Scenes', 'static_gratings': 'Static Gratings',
               'gabors': 'Gabors'}
@@ -71,7 +75,7 @@ STIM_COLOR = {'natural_scenes': '#0072B2', 'static_gratings': '#E69F00',
 # ---- brain-region order + node subregion labels (region-ordered union-68 frame) ----
 labels_ordered = ['VISp', 'VISl', 'VISrl', 'VISal', 'VISpm', 'VISam',
                   'CA1', 'CA2', 'CA3', 'DG', 'SUB', 'POL', 'LGv', 'LP']
-union_labels = np.load(f'{FIG}/cits_v2_union_labels.npy', allow_pickle=True)
+union_labels = np.load(_union('cits_v2_union_labels.npy'), allow_pickle=True)
 permute = []
 for lab in labels_ordered:
     permute += list(np.where(union_labels == lab)[0])

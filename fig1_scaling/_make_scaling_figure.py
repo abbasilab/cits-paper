@@ -11,17 +11,20 @@ _FS=2.0   # global font scale (2x)
 plt.rcParams.update({'font.size':10*_FS,'axes.titlesize':13*_FS,'axes.labelsize':11*_FS,
     'xtick.labelsize':10*_FS,'ytick.labelsize':10*_FS,'legend.fontsize':8.5*_FS,'legend.title_fontsize':8.5*_FS})
 
-import os
-d = pd.read_csv('grid_v3.csv')
-if os.path.exists('grid_ext.csv'):           # p=1000 walls for TPC/KernelGC
-    d = pd.concat([d, pd.read_csv('grid_ext.csv')], ignore_index=True)
+import os, sys
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'shared')))
+from paths import out as _out, result
+# grid CSVs: this repo's outputs if present, else the committed copies in source_data/
+d = pd.read_csv(result('fig1_scaling', 'grid_v3.csv'))
+if os.path.exists(result('fig1_scaling', 'grid_ext.csv')):           # p=1000 walls for TPC/KernelGC
+    d = pd.concat([d, pd.read_csv(result('fig1_scaling', 'grid_ext.csv'))], ignore_index=True)
 ok = d[d.status=='ok'].copy()
 # runtime from the certified clean seeds (0-2) only
 rt_agg = ok.groupby(['method','p','N']).agg(rt=('runtime_sec','mean'))
 # CS pooled over certified + extra accuracy seeds (uniform n; extra seeds are CS-only)
 cs_src = ok[['method','p','N','seed','cs']].copy()
-if os.path.exists('grid_seeds_ext.csv'):
-    ext = pd.read_csv('grid_seeds_ext.csv'); ext = ext[ext.status=='ok']
+if os.path.exists(result('fig1_scaling', 'grid_seeds_ext.csv')):
+    ext = pd.read_csv(result('fig1_scaling', 'grid_seeds_ext.csv')); ext = ext[ext.status=='ok']
     cs_src = pd.concat([cs_src, ext[['method','p','N','seed','cs']]], ignore_index=True)
 cs_agg = cs_src.groupby(['method','p','N']).agg(cs=('cs','mean'), cs_sd=('cs','std'),
          nseed=('cs','count'))
@@ -136,8 +139,8 @@ leg = axB.legend(handles=handles, loc='lower right', ncol=1, frameon=False,
                  labelspacing=0.35, handletextpad=0.5, borderaxespad=0.6)
 leg.get_title().set_fontweight('bold')
 fig.tight_layout(rect=[0, 0, 1, 1])
-fig.savefig('scaling_grid_figure.png', dpi=200, bbox_inches='tight')
-fig.savefig('/home/rbiswas1/microns/CITS_manuscript/figures/scaling_grid_figure.pdf',
+fig.savefig(_out('fig1_scaling', 'scaling_grid_figure.png'), dpi=200, bbox_inches='tight')
+fig.savefig(_out('fig1_scaling', 'scaling_grid_figure.pdf'),
             bbox_inches='tight')
-agg.to_csv('grid_v3_aggregated.csv', index=False)
+agg.to_csv(_out('fig1_scaling', 'grid_v3_aggregated.csv'), index=False)
 print("saved scaling_grid_figure.png ; walls:", {m:compute_wall(m) for m in order})

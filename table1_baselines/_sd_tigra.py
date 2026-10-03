@@ -1,8 +1,10 @@
 import numpy as np, sys, os, warnings, csv; warnings.filterwarnings('ignore')
 sys.path.insert(0,os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'shared')))
+from paths import out as _out
 from glm_spiking_sim import simulate_glm_spiking, directed_cs
 from _glm_suite_baselines import pcmci_plus, lpcmci
-w=csv.writer(open('_sd_tigra.csv','w',newline='')); w.writerow(['cell','seed','cs'])
+w=csv.writer(open(_out('table1_baselines', '_sd_tigra.csv'),'w',newline='')); w.writerow(['cell','seed','cs'])
 SPK={'convergence':'conv','diamond':'cce','depression':'depr'}
 for m,tag in SPK.items():
     for s in range(50):

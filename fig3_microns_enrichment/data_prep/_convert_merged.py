@@ -1,7 +1,9 @@
 import sys, time, re, os, numpy as np, pandas as pd
 f = sys.argv[1]
 m = re.search(r'session(\d+)_scan(\d+)', f); s, sc = m.group(1), m.group(2)
-outdir = '/data1/rb1/microns/saves/calcium_npy'; os.makedirs(outdir, exist_ok=True)
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '..', 'shared')))
+from paths import outdir as _outdir
+outdir = _outdir('fig3_microns_enrichment/data_prep/calcium_npy'); os.makedirs(outdir, exist_ok=True)   # was <MICRONS_SAVES>/calcium_npy
 t0 = time.time()
 df = pd.read_pickle(f)
 t1 = time.time()

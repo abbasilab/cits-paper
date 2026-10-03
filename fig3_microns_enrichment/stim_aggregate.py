@@ -7,8 +7,10 @@ matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 from scipy import stats
 from statsmodels.stats.multitest import multipletests
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'shared')))
+from paths import outdir as _outdir
 
-OUT = '/home/rbiswas1/microns/analysis/stimulus_fc/out'
+OUT = _outdir('fig3_microns_enrichment/out')
 FIG = f'{OUT}/figures'; os.makedirs(FIG, exist_ok=True)
 STIMS = ['clip', 'Monet', 'Trippy']
 SLAB = {'clip': 'Clip', 'Monet': 'Monet', 'Trippy': 'Trippy'}

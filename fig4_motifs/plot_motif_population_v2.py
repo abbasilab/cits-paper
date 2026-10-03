@@ -15,7 +15,7 @@ Lagged partial correlations (source t-1 vs target t), computed exactly as
 run_motif_population_v2.py: edges conditioned on the target's other inferred inputs,
 the non-adjacent role on its recorded separating set, the collider parent-pair on the
 shared child C."""
-import sys, pickle as pkl
+import os, sys, pickle as pkl
 from itertools import combinations
 import numpy as np
 import matplotlib
@@ -24,11 +24,12 @@ import matplotlib.pyplot as plt
 from scipy import stats
 from matplotlib.patches import Patch
 
-sys.path.insert(0, '/home/rbiswas1/repos/cits')
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'shared')))
+from paths import outdir as _outdir, neuropixels
 from cits.methods import data_transform, partial_corr
 
-DATA_DIR = '/home/rbiswas1/citsproject/data'
-OUT = '/home/rbiswas1/microns/CITS_manuscript/figures'
+DATA_DIR = neuropixels()   # was citsproject/data
+OUT = _outdir('fig4_motifs')   # was CITS_manuscript/figures (also holds run_motif_population_v2.py outputs)
 SESS, STIM, BIN, IDX, TAU, ALPHA = 791319847, 'natural_scenes', 0.01, 0, 1, 0.05
 MARG_DEP = 0.1
 

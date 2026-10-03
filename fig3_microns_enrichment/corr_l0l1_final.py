@@ -1,6 +1,7 @@
 import os,sys,pickle,numpy as np,pandas as pd
-SP="/tmp/claude-1004/-home-rbiswas1-microns/48b8216b-5c45-4c8f-923d-dc312e0dbb46/scratchpad"
-sys.path.insert(0,SP); import stim_baseline_enrichment as SB
+_HERE=os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0,os.path.abspath(os.path.join(_HERE,'..','shared'))); from paths import out as _out, result
+sys.path.insert(0,_HERE); import stim_baseline_enrichment as SB   # was a scratchpad copy of this repo's stim_baseline_enrichment.py
 def present_lag(XB,L):
     if L==0:
         Z=SB.zscore_rows(XB); n=Z.shape[1]; C=(Z@Z.T)/n
@@ -39,9 +40,9 @@ for (s,sc,field) in em:
             else: c+=1; e+=int(sij)
     rows.append({'field_key':str((s,sc,field)),'fc_plus':a,'fcplus_scplus':b,'fc_minus':c,'fcminus_scplus':e})
 corr=pd.DataFrame(rows)
-corr.to_csv(SP+'/stim_baseline_perfield_lagged01.csv',index=False)
+corr.to_csv(_out('fig3_microns_enrichment','stim_baseline_perfield_lagged01.csv'),index=False)
 print("saved CSV rows=",len(corr),flush=True)
-cits=pd.read_csv(SP+'/panelA_perfield_counts.csv')
+cits=pd.read_csv(result('fig3_microns_enrichment','panelA_perfield_counts.csv'))   # from panelA_perfield.py
 cits['fk']=cits['field_key'].apply(lambda x:tuple(int(v) for v in str(x).strip('()').split(',')))
 corr['fk']=corr['field_key'].apply(lambda x:tuple(int(v) for v in str(x).strip('()').split(',')))
 M=cits.merge(corr,on='fk',suffixes=('_cits','_corr'))

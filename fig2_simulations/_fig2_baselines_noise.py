@@ -1,5 +1,6 @@
-import numpy as np, sys, warnings, csv; warnings.filterwarnings('ignore')
-sys.path.insert(0,'.'); sys.path.insert(0,'/home/rbiswas1/repos/cits')
+import numpy as np, sys, os, warnings, csv; warnings.filterwarnings('ignore')
+sys.path.insert(0,'.'); sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'shared')))
+from paths import out as _out
 from sim_scm import simulate_extended
 from simulation_benchmark_fc_methods_v3 import run_tpc, run_pc
 from directed_metrics import compute_directed_metrics
@@ -23,7 +24,7 @@ def m3(pred,out):
     return m['directed_TPR_strict'],m['directed_FPR_strict'],m['directed_CS_strict']
 REG=['lingauss1','lingauss2','nonlinnongauss1','nonlinnongauss2']
 NOISE=[0.1,0.5,1,1.5,2,2.5,3,3.5]; NS=50
-w=csv.writer(open('_fig2_baselines_noise50.csv','w',newline='')); w.writerow(['method','regime','noise','seed','TPR','FPR','CS'])
+w=csv.writer(open(_out('fig2_simulations', '_fig2_baselines_noise50.csv'),'w',newline='')); w.writerow(['method','regime','noise','seed','TPR','FPR','CS'])
 for reg in REG:
   for nz in NOISE:
     for s in range(NS):

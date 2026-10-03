@@ -4,8 +4,10 @@ for v in ("OMP_NUM_THREADS","OPENBLAS_NUM_THREADS","MKL_NUM_THREADS","NUMEXPR_NU
 import pickle as pkl, numpy as np, sys, time
 from statsmodels.tsa.stattools import adfuller
 from statsmodels.stats.multitest import multipletests
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'shared')))
+from paths import neuropixels
 
-DATA = "/home/rbiswas1/citsproject/data/"
+DATA = os.path.join(neuropixels(), "")   # was citsproject/data/
 SESS = 791319847
 stims = ['natural_scenes', 'static_gratings', 'gabors']
 

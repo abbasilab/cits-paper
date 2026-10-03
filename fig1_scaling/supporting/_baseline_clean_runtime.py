@@ -11,7 +11,8 @@ N=500 (T=2000): enough samples for CS>=0.95 across p (N* curve). 1-hour cap/run.
 import os, sys, time
 import multiprocessing as mp
 _THIS = os.path.dirname(os.path.abspath(__file__))
-for _p in (_THIS, '/home/rbiswas1/repos/cits'):
+# _THIS, the parent fig1_scaling/ (scaling_benchmark_lg) and the repo's shared/
+for _p in (_THIS, os.path.dirname(_THIS), os.path.join(os.path.dirname(os.path.dirname(_THIS)), 'shared')):
     if _p not in sys.path: sys.path.insert(0, _p)
 import numpy as np, pandas as pd
 from scaling_benchmark_lg import lg_var, directed_cs, _worker
@@ -22,7 +23,8 @@ N = 500
 T = N * (2*(TAU+1))       # 2000
 P_VALUES = [50, 100, 250, 500, 1000]
 METHODS = ['PCMCI+', 'TPC', 'KernelGC', 'LPCMCI']
-OUT = os.path.join(_THIS, 'baseline_clean_runtime.csv')
+from paths import out as _out
+OUT = _out('fig1_scaling/supporting', 'baseline_clean_runtime.csv')
 
 
 def run_timed(method, X):

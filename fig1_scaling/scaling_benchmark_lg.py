@@ -21,12 +21,13 @@ import numpy as np, pandas as pd
 warnings.filterwarnings('ignore')
 
 _THIS = os.path.dirname(os.path.abspath(__file__))
-_REPO = '/home/rbiswas1/repos/cits'
-for _p in (_THIS, _REPO):
+_SHARED = os.path.abspath(os.path.join(_THIS, '..', 'shared'))
+for _p in (_THIS, _SHARED):
     if _p not in sys.path:
         sys.path.insert(0, _p)
+from paths import out as _out
 
-OUT = os.path.join(_THIS, 'scaling_benchmark_lg.csv')
+OUT = _out('fig1_scaling', 'scaling_benchmark_lg.csv')
 ALPHA, T, TAU = 0.05, 1000, 1
 P_VALUES = [10, 25, 50, 100]
 SEEDS = 3

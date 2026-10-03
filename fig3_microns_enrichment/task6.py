@@ -1,7 +1,11 @@
 import numpy as np, pandas as pd
 from scipy.stats import fisher_exact
+import os, sys
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'shared')))
+from paths import arousal_figs, result
 
-BASE = "/home/rbiswas1/microns/arousal_paper_overleaf/figures/2026-06-01_versionBsafe/exp_analysis/fig1_sc/"
+# arousal-pipeline per-field CSVs (CITS, GC2; not produced in this repo)
+BASE = os.path.join(arousal_figs('2026-06-01_versionBsafe', 'exp_analysis', 'fig1_sc'), '')
 
 def katz_ci(a, n1, c, n2):
     rr = (a/n1)/(c/n2)
@@ -78,7 +82,8 @@ ci, n = boot_enrich(df_g_all)
 print(f"GC2 (perfield granger, all, {n} fields): bootstrap 95% CI = ({ci[0]:.4f}, {ci[1]:.4f})")
 
 # within/between per-field
-df_wb = pd.read_csv(BASE+"sc_within_vs_between_perfield_versionBsafe.csv")
+# produced by bootstrap_em_within_vs_between_versionBsafe.py (committed copy in source_data/)
+df_wb = pd.read_csv(result('fig3_microns_enrichment', "sc_within_vs_between_perfield_versionBsafe.csv"))
 ci, n = boot_within_between(df_wb)
 print(f"Within/between (perfield, {n} fields): bootstrap 95% CI = ({ci[0]:.4f}, {ci[1]:.4f})")
 

@@ -14,12 +14,13 @@ import os, sys, time, argparse
 import numpy as np, pandas as pd
 
 _THIS = os.path.dirname(os.path.abspath(__file__))
-_REPO_CITS = '/home/rbiswas1/repos/cits'
-for _p in (_THIS, _REPO_CITS):
+_SHARED = os.path.join(os.path.dirname(os.path.dirname(_THIS)), 'shared')   # repo shared/ (paths.py, simulators)
+for _p in (_THIS, _SHARED):
     if _p not in sys.path:
         sys.path.insert(0, _p)
 
-OUT_DIR = '/home/rbiswas1/microns/arousal_paper_overleaf/figures/2026-07-06_hsic_gpu_validation'
+from paths import outdir as _outdir
+OUT_DIR = _outdir('exploratory/hsic_gpu')   # was arousal_paper_overleaf/figures/2026-07-06_hsic_gpu_validation
 os.makedirs(OUT_DIR, exist_ok=True)
 
 ALPHA, T, NOISE, TAU, P_PERM = 0.05, 1000, 1.0, 1, 100

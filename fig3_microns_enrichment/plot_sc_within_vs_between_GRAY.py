@@ -5,6 +5,7 @@ figures/plot_sc_within_vs_between_versionBsafe.py except EM_COLOR -> gray and a
 new output path; reads the same versionBsafe data.
 """
 import os
+import sys
 import pandas as pd
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
@@ -21,11 +22,11 @@ def scientific_yaxis(ax):
     ax.yaxis.get_offset_text().set_fontsize(11)
 
 
-BASE = ('/home/rbiswas1/microns/arousal_paper_overleaf/figures/'
-        '2026-06-01_versionBsafe/exp_analysis/fig1_sc')
-CSV = os.path.join(BASE, 'sc_within_vs_between_synapse_versionBsafe.csv')
-OUT = ('/home/rbiswas1/microns/analysis/stimulus_fc/'
-       'sc_within_vs_between_synapse_GRAY.png')
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'shared')))
+from paths import out as _out, result
+# from bootstrap_em_within_vs_between_versionBsafe.py (committed copy in source_data/)
+CSV = result('fig3_microns_enrichment', 'sc_within_vs_between_synapse_versionBsafe.csv')
+OUT = _out('fig3_microns_enrichment', 'sc_within_vs_between_synapse_GRAY.png')
 
 EM_COLOR = '#7a7a7a'   # neutral gray (structure)
 

@@ -2,7 +2,7 @@
 full-graph CS (cross + self). Runs on GPU (device=cuda) or CPU. SH env toggles
 recurrence as in _spiking_pmatched_cpu.py."""
 import numpy as np, sys, os, warnings; warnings.filterwarnings('ignore')
-sys.path.insert(0,'.'); sys.path.insert(0,'/home/rbiswas1/repos/cits')
+sys.path.insert(0,'.'); sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'shared')))
 from cits import cits_rcit  # cits >= 1.9.0 (pip install cits[rcit]); uncapped conditioning, as in the paper
 MOTIFS={'convergence':[(0,2),(1,2),(2,3)],'diamond':[(0,1),(0,2),(1,3),(2,3)],
         'chain':[(0,1),(1,2),(2,3)],'depression':[(0,2),(1,2),(2,3)]}

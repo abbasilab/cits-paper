@@ -21,8 +21,7 @@ Scoring on confounded pairs (no true DIRECT edge):
 Structural: TPR on true edges, FPR on true non-edges (excl. confounded pairs), CS=TPR-FPR.
 """
 import numpy as np, sys, os, warnings, time; warnings.filterwarnings('ignore')
-sys.path.insert(0,'/home/rbiswas1/microns/analysis/functional_circuitry')
-sys.path.insert(0,'/home/rbiswas1/repos/cits')
+sys.path.insert(0,os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '..', 'shared')))   # repo shared/ (was analysis/functional_circuitry)
 from scipy.stats import f as fdist
 from numpy.linalg import lstsq
 

@@ -10,7 +10,8 @@ import os, sys, subprocess
 import numpy as np
 
 _THIS = os.path.dirname(os.path.abspath(__file__)); sys.path.insert(0, _THIS)
-OUT_DIR = '/home/rbiswas1/microns/arousal_paper_overleaf/figures/2026-07-06_hsic_gpu_validation'
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(_THIS)), 'shared')); from paths import outdir as _outdir
+OUT_DIR = _outdir('exploratory/hsic_gpu')   # was arousal_paper_overleaf/figures/2026-07-06_hsic_gpu_validation
 os.makedirs(OUT_DIR, exist_ok=True)
 CSV = os.path.join(OUT_DIR, 'cond_cases_data.csv')
 RREF = os.path.join(OUT_DIR, 'cond_r_reference.csv')

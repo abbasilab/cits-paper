@@ -8,18 +8,19 @@ marginally, then drops to ~0 when conditioned on the algorithm's recorded
 separating set S (honest partial-correlation residuals: residualize BOTH
 variables on S). 2x5 grid so the 'non-adjacent' and 'given S' columns align
 across rows; the fork row (2 edges) leaves the 3rd edge cell blank."""
-import sys, pickle as pkl
+import os, sys, pickle as pkl
 import numpy as np
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 from scipy import stats, linalg
 
-sys.path.insert(0, '/home/rbiswas1/repos/cits')
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'shared')))
+from paths import outdir as _outdir, neuropixels
 from cits.methods import data_transform
 
-DATA_DIR = '/home/rbiswas1/citsproject/data'
-OUT = '/home/rbiswas1/microns/CITS_manuscript/figures'
+DATA_DIR = neuropixels()   # was citsproject/data
+OUT = _outdir('fig4_motifs')   # was CITS_manuscript/figures (also holds run_motif_population_v2.py outputs)
 SESS, STIM, BIN, IDX, TAU = 791319847, 'natural_scenes', 0.01, 0, 1
 
 raw = np.asarray(pkl.load(open(f'{DATA_DIR}/ID{SESS}_{STIM}_bin_{BIN}_X_idx-{IDX}.p', 'rb')), float)

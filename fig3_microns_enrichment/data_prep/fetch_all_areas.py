@@ -9,6 +9,9 @@ dj.config['database.password'] = os.environ['DJ_PASS']  # REDACTED: was a hard-c
 dj.config['database.use_tls'] = False
 
 from microns_phase3 import nda
+import sys
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '..', 'shared')))
+from paths import out as _out
 
 def fetch_areas():
     print("Fetching AreaMembership...")
@@ -16,7 +19,7 @@ def fetch_areas():
     df = pd.DataFrame((nda.AreaMembership()).fetch())
     print(f"Fetched {len(df)} records.")
     
-    output_path = '/home/rbiswas1/microns/all_unit_areas.csv'
+    output_path = _out('fig3_microns_enrichment/data_prep', 'all_unit_areas.csv')   # was <MICRONS_META>/all_unit_areas.csv
     df.to_csv(output_path, index=False)
     print(f"Saved to {output_path}")
     print(df.head())

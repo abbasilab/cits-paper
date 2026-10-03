@@ -18,13 +18,14 @@ import os, sys, glob, time, json, argparse
 import numpy as np, pandas as pd
 from itertools import combinations, product
 
-AD = '/home/rbiswas1/microns/analysis/functional_circuitry'
-for p in (AD, '/home/rbiswas1/repos/cupc', '/home/rbiswas1/repos/cits'):
+AD = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'shared'))   # repo shared/ (was analysis/functional_circuitry)
+for p in (AD,):
     if p not in sys.path: sys.path.insert(0, p)
+from paths import MICRONS_SAVES, microns_meta
 
-SAVES = '/home/rbiswas1/microns_data/saves'
+SAVES = MICRONS_SAVES   # was microns_data/saves on the GPU server (same layout as /data1 saves)
 NPY = f'{SAVES}/calcium_npy'
-AREA_FILE = '/home/rbiswas1/microns/all_unit_areas.csv'
+AREA_FILE = microns_meta('all_unit_areas.csv')
 AREAS = ['AL', 'LM', 'RL', 'V1']
 TAU = 1
 W = 2 * (TAU + 1)   # 4

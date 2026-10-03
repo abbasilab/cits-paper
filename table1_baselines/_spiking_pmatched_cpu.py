@@ -5,7 +5,7 @@ Kernel-GC). Full-graph CS (cross + self). SH env toggles recurrence:
 Motifs convergence/diamond/chain are matched across both modes; depression is
 recurrent-only (Tsodyks-Markram self-history) and is skipped when SH=0."""
 import numpy as np, sys, os, warnings; warnings.filterwarnings('ignore')
-sys.path.insert(0,'.'); sys.path.insert(0,'/home/rbiswas1/repos/cits')
+sys.path.insert(0,'.'); sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'shared')))
 from simulation_benchmark_fc_methods_v3 import pc_skeleton_cpu, orient_v_structures
 from kernel_granger_baseline import run_kernel_granger
 from scipy import stats

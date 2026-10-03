@@ -13,8 +13,8 @@ how badly. So we sweep phi:
 Prediction: CITS clean at low phi, degrading with phi; naive lagged methods
 (pairwise Granger, lag-1 correlation) fooled across the board.
 """
-import numpy as np, sys, warnings; warnings.filterwarnings('ignore')
-sys.path.insert(0,'/home/rbiswas1/repos/cits')
+import numpy as np, sys, os, warnings; warnings.filterwarnings('ignore')
+sys.path.insert(0,os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '..', 'shared')))   # repo shared/ (was the local cits checkout)
 from cits.methods import cits_full
 from scipy.stats import f as fdist, pearsonr
 from numpy.linalg import lstsq

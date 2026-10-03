@@ -16,14 +16,16 @@ from matplotlib.patches import FancyArrowPatch, Circle, Patch
 from matplotlib.lines import Line2D
 import matplotlib.patheffects as pe
 D=os.path.dirname(os.path.abspath(__file__))
+import sys; sys.path.insert(0, os.path.abspath(os.path.join(D, '..', 'shared')))
+from paths import out as _out, result
 frames=[]
 for f in ['_fig2_baselines_noise50.csv','_fig2_cits_noise50.csv','_fig2_cits_noise50_nlng.csv','_fig2_kgc_noise50.csv','_fig2_pcmci_noise50.csv']:
-    p=os.path.join(D,f)
+    p=result('fig2_simulations',f)   # outputs/fig2_simulations/ if present, else source_data/
     if os.path.exists(p): frames.append(pd.read_csv(p))
 d=pd.concat(frames,ignore_index=True)
 for c in ['TPR','FPR','CS']: d[c]=pd.to_numeric(d[c],errors='coerce')
 d['IFPR']=1.0-d['FPR']
-esign=json.load(open(os.path.join(D,'_fig2_edgesign.json')))    # unified signed-LSCM weight/sign (single source)
+esign=json.load(open(result('fig2_simulations','_fig2_edgesign.json')))    # unified signed-LSCM weight/sign (single source)
 REG=[('lingauss1','Linear Gaussian 1'),('lingauss2','Linear Gaussian 2'),
      ('nonlinnongauss1','Non-linear Non-Gaussian 1'),('nonlinnongauss2','Non-linear Non-Gaussian 2')]
 LINEAR={'lingauss1':True,'lingauss2':True,'nonlinnongauss1':False,'nonlinnongauss2':False}
@@ -175,5 +177,5 @@ sh=[Line2D([0],[0],color='#0072B2',lw=3,label='Positive'),
     Line2D([0],[0],color='#D55E00',lw=3,label='Negative'),
     Line2D([0],[0],color='#9AA0A6',lw=3,ls=(0,(4,2)),label='Sign undefined')]
 fig.legend(handles=sh,bbox_to_anchor=(0.905,0.27),title='Edge sign',**tkw)
-for ext in ['png','pdf']: fig.savefig(f'/home/rbiswas1/microns/CITS_manuscript/figures/fig2_orig.{ext}',dpi=200,bbox_inches='tight')
+for ext in ['png','pdf']: fig.savefig(_out('fig2_simulations', f'fig2_orig.{ext}'),dpi=200,bbox_inches='tight')
 print("saved fig2_orig")

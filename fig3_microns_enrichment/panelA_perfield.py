@@ -11,8 +11,9 @@ the fold CI. The ONLY change: the FC edge set is our stimulus Version-B fcB
 stimulus graphs per field (= the mean|FC|!=0 'all' analog).
 
 FC matrices + calcium metadata were staged from gpu-2; EM data is local.
+(Paths now come from shared/paths.py: FC from $CITS_PAPER_OUT/fig3_microns_enrichment/out/fc.)
 """
-import os, glob
+import os, sys, glob
 import numpy as np
 import pandas as pd
 import pickle
@@ -24,14 +25,16 @@ import matplotlib.patches as mpatches
 from scipy.stats import fisher_exact
 from statsmodels.stats.proportion import proportion_confint
 
-STAGE = ('/tmp/claude-1004/-home-rbiswas1-microns/'
-         '48b8216b-5c45-4c8f-923d-dc312e0dbb46/scratchpad/panelA_stage')
-FCDIR, NPYDIR = f'{STAGE}/fc', f'{STAGE}/npy'
-SAVES = '/data1/rb1/microns/saves/'
-EM_KEYS_NPZ = ('/home/rbiswas1/microns/arousal_paper_overleaf/figures/'
-               '2026-04-29/fig4/bootstrap_sf_correlation_13sess.npz')
-OUT_PNG = '/home/rbiswas1/microns/analysis/stimulus_fc/panelA_fc_em_enrichment_versionB.png'
-OUT_CSV = '/home/rbiswas1/microns/analysis/stimulus_fc/panelA_fc_em_enrichment_versionB.csv'
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'shared')))
+from paths import out as _out, OUT_ROOT, MICRONS_SAVES, microns_saves, arousal_figs
+
+# Version-B FC written by stim_run.py (was staged from gpu-2 into a session scratchpad);
+# calcium metadata (ids/fields/unionids) from data_prep/ in $MICRONS_SAVES/calcium_npy.
+FCDIR, NPYDIR = os.path.join(OUT_ROOT, 'fig3_microns_enrichment', 'out', 'fc'), microns_saves('calcium_npy')
+SAVES = os.path.join(MICRONS_SAVES, '')
+EM_KEYS_NPZ = arousal_figs('2026-04-29', 'fig4', 'bootstrap_sf_correlation_13sess.npz')
+OUT_PNG = _out('fig3_microns_enrichment', 'panelA_fc_em_enrichment_versionB.png')
+OUT_CSV = _out('fig3_microns_enrichment', 'panelA_fc_em_enrichment_versionB.csv')
 STIMS = ['clip', 'Monet', 'Trippy']
 FC_COLOR = '#0072B2'   # Okabe-Ito blue (FC-present); colorblind-safe, distinct from B-E trio
 ABS_COLOR = '#b8b8b8'
@@ -132,8 +135,7 @@ def main():
             rows.append(r)
     pf = pd.DataFrame(rows)
     print(f"  usable fields = {len(pf)}")
-    pf.to_csv('/tmp/claude-1004/-home-rbiswas1-microns/'
-              '48b8216b-5c45-4c8f-923d-dc312e0dbb46/scratchpad/panelA_perfield_counts.csv', index=False)
+    pf.to_csv(_out('fig3_microns_enrichment', 'panelA_perfield_counts.csv'), index=False)
 
     agg = pf[['fc_plus', 'fcplus_scplus', 'fc_minus', 'fcminus_scplus']].sum().to_numpy()
     fcp, fps, fca, fas = (int(x) for x in agg)

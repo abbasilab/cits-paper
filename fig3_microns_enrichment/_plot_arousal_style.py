@@ -17,7 +17,7 @@ Refinements applied (per coordinator):
 Stats: field-bootstrap 95% CI (descriptive); paired Friedman + pairwise
 Wilcoxon-FDR across the 3 stimuli (n=124 fields, paired within field).
 """
-import os
+import os, sys
 import numpy as np
 import pandas as pd
 import matplotlib
@@ -28,8 +28,10 @@ from statsmodels.stats.multitest import multipletests
 from itertools import combinations
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-CSV  = os.path.join(HERE, 'results', 'stimulus_fc_combined.csv')
-OUT  = HERE
+sys.path.insert(0, os.path.abspath(os.path.join(HERE, '..', 'shared')))
+from paths import outdir as _outdir, result
+CSV  = result('fig3_microns_enrichment', 'results/stimulus_fc_combined.csv')
+OUT  = _outdir('fig3_microns_enrichment')
 df   = pd.read_csv(CSV)
 df['fid'] = list(zip(df['session'], df['scan'], df['field']))
 

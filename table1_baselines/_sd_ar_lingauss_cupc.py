@@ -1,13 +1,14 @@
 import numpy as np, sys, os, warnings, csv; warnings.filterwarnings('ignore')
-os.environ.setdefault('CUPC_DIR','/home/rbiswas1/repos/cupc')
-sys.path.insert(0,'.'); sys.path.insert(0,'/home/rbiswas1/repos/cits')
+sys.path.insert(0,'.'); sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'shared')))
+from paths import out as _out, CUPC_DIR
+os.environ.setdefault('CUPC_DIR', CUPC_DIR)
 from sim_scm import simulate_extended
 from directed_metrics import compute_directed_metrics
 from gpu_cits_lag_cupc import gpu_cits_lag_cupc
 def dcs(pred,out):
     _,gl_uw,gl_w,gc_uw,gc_w,gb_uw,gb_lw,gb_cw=out
     return compute_directed_metrics(pred,gl_w,gc_w,gb_lw,gb_cw,gl_uw,gc_uw,gb_uw)['directed_CS_strict']
-w=csv.writer(open('_sd_ar_lingauss_cupc.csv','w',newline='')); w.writerow(['cell','seed','cs'])
+w=csv.writer(open(_out('table1_baselines', '_sd_ar_lingauss_cupc.csv'),'w',newline='')); w.writerow(['cell','seed','cs'])
 for reg in ['lingauss1','lingauss2']:
     vals=[]
     for s in range(50):

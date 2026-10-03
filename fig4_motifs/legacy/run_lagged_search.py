@@ -10,10 +10,12 @@ import numpy as np
 import pickle as pkl
 from scipy.stats import pearsonr
 import os
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '..', 'shared')))
+from paths import out as _out, outdir as _outdir, neuropixels
 
 # Load notebook to get context
 print("Loading notebook context...")
-with open('script copy.ipynb', 'r') as f:
+with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'script copy.ipynb'), 'r') as f:
     nb = json.load(f)
 
 # Extract sess_id and stim_label from notebook
@@ -59,7 +61,7 @@ class A_Config:
 
 # Load CFC results (causal effect matrix)
 print("\nLoading CFC results...")
-results_dir = 'save/'
+results_dir = os.path.join(_outdir('fig4_motifs/legacy/save'), '')   # was save/ (CITS results of the legacy notebook)
 allencon_save = A_Config(results_dir, sess_id, stim_label)
 bin_size = 0.01
 alpha = 0.05  # Default alpha
@@ -111,7 +113,7 @@ print()
 # Load time series data for all units
 idx_for_corr = 0
 bin_size = 0.01
-corr_data_dir = 'data/'
+corr_data_dir = os.path.join(neuropixels(), '')   # was data/
 allencon = A_Config(corr_data_dir, sess_id, stim_label)
 name = allencon.name + '_bin_{}_X_idx-{}.p'.format(bin_size, idx_for_corr)
 
@@ -379,7 +381,7 @@ else:
 
 # Save results
 if lagged_triples_sorted:
-    output_file = f'lagged_triples_results_{sess_id}_{stim_label}.pkl'
+    output_file = _out('fig4_motifs/legacy', f'lagged_triples_results_{sess_id}_{stim_label}.pkl')
     with open(output_file, 'wb') as f:
         pkl.dump(lagged_triples_sorted, f)
     print(f"\nResults saved to: {output_file}")

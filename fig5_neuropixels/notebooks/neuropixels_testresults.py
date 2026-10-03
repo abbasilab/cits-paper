@@ -2,7 +2,10 @@
 def convert_fcmat2units(mat,stim_label,units,permute):
     import pickle as pkl
     import numpy as np
-    data_directory = 'data/'#'D:\\OneDrive - UW\\research\\projects_git\\mice-aibs\\data'#'D:\\OneDrive - UW\\research\\projects_git\\mice-aibs\\data'
+    import os, sys
+    sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '..', 'shared')))
+    from paths import outdir as _outdir
+    data_directory = os.path.join(_outdir('fig5_neuropixels/notebooks/data'), '')  # was 'data/' (data folder of script.ipynb) #'D:\\OneDrive - UW\\research\\projects_git\\mice-aibs\\data'#'D:\\OneDrive - UW\\research\\projects_git\\mice-aibs\\data'
     sess_id = 791319847
     class A_Config:
         def __init__(self, save_dir, sess_id, stimulus):

@@ -18,7 +18,7 @@ Verified: arousal field-neuron set == fcB ID set for fields 3-6, so a sort by
 unit ID also aligns; we use the fcB nids ordering directly regardless.
 """
 
-import os, pickle
+import os, sys, pickle
 import numpy as np
 import pandas as pd
 import matplotlib
@@ -31,12 +31,13 @@ import matplotlib.gridspec as gridspec
 from matplotlib.lines import Line2D
 from scipy.spatial import ConvexHull
 
-STAGE = ('/tmp/claude-1004/-home-rbiswas1-microns/'
-         '48b8216b-5c45-4c8f-923d-dc312e0dbb46/scratchpad/panelA_stage')
-FCDIR  = f'{STAGE}/fc'
-NPYDIR = f'{STAGE}/npy'
-OUT    = ('/home/rbiswas1/microns/CITS_manuscript/figures/'
-          'final_figures_2026-08-31/fig3B_cfc_spatial_clip')
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'shared')))
+from paths import out as _out, OUT_ROOT, microns_saves, microns_meta
+# Version-B FC written by stim_run.py (was staged from gpu-2 into a session scratchpad);
+# calcium metadata (ids/fields/unionids) from data_prep/ in $MICRONS_SAVES/calcium_npy.
+FCDIR  = os.path.join(OUT_ROOT, 'fig3_microns_enrichment', 'out', 'fc')
+NPYDIR = microns_saves('calcium_npy')
+OUT    = _out('fig3_microns_enrichment', 'fig3B_cfc_spatial_clip')   # + '.pdf' / '.png'
 
 STIM = 'clip'
 SESS, SCAN = 8, 9
@@ -67,8 +68,8 @@ PANELS = [3, 4, 5, 6]
 
 # ── Load shared data ───────────────────────────────────────────────────────────
 print('Loading shared data ...')
-coords_all = pd.read_pickle('/home/rbiswas1/microns/all_unit_coords.pkl')
-areas_all  = pd.read_csv('/home/rbiswas1/microns/all_unit_areas.csv')
+coords_all = pd.read_pickle(microns_meta('all_unit_coords.pkl'))
+areas_all  = pd.read_csv(microns_meta('all_unit_areas.csv'))
 
 _ids    = np.load(f'{NPYDIR}/ids_session{SESS}_scan{SCAN}.npy')
 _fields = np.load(f'{NPYDIR}/fields_session{SESS}_scan{SCAN}.npy')

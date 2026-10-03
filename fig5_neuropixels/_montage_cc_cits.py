@@ -3,8 +3,9 @@
 concatenated presentations, first 90 s window. Version B, SIGNED LSCM weights.
 Outputs cmp_cc_<stim>_CITS_68.npy (cc = concatenated-presentation window)."""
 import os, sys, numpy as np, pickle as pkl
-for p_ in ('/home/rbiswas1/microns/analysis/functional_circuitry', '/home/rbiswas1/repos/cits',
-           '/home/rbiswas1/repos/cupc', '/home/rbiswas1/microns/CITS_manuscript/figures'):
+# repo shared/ (was analysis/functional_circuitry) and this folder (was CITS_manuscript/figures)
+for p_ in (os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'shared')),
+           os.path.dirname(os.path.abspath(__file__))):
     if p_ not in sys.path:
         sys.path.insert(0, p_)
 from gpu_cits_lag_cupc_faithful import gpu_cits_lag_cupc_faithful
@@ -12,14 +13,16 @@ from _pc_raw import pc_skeleton_raw
 from _pc_orientation import orient_v_structures
 from _union_cpdag import build_union
 from _lscm_refit import lscm_refit_cpdag
+from paths import outdir as _outdir, result, neuropixels
+def _union(f): return result('fig5_neuropixels', f, fallback=neuropixels(f))   # cits_v2_union_*.npy: $CITS_PAPER_OUT/fig5_neuropixels/ if present, else $NEUROPIXELS_DATA
 
-SESS, DATA = 791319847, '/home/rbiswas1/citsproject/data'
-OUT = '/home/rbiswas1/microns/CITS_manuscript/figures'
+SESS, DATA = 791319847, neuropixels()   # was citsproject/data
+OUT = _outdir('fig5_neuropixels')   # was CITS_manuscript/figures
 STIMS = ['natural_scenes', 'static_gratings', 'gabors']
 AL, TAU, WBINS = 0.05, 1, 9000
 labels_ordered = ['VISp', 'VISl', 'VISrl', 'VISal', 'VISpm', 'VISam',
                   'CA1', 'CA2', 'CA3', 'DG', 'SUB', 'POL', 'LGv', 'LP']
-uu = np.load(f'{OUT}/cits_v2_union_units.npy'); ul = np.load(f'{OUT}/cits_v2_union_labels.npy', allow_pickle=True)
+uu = np.load(_union('cits_v2_union_units.npy')); ul = np.load(_union('cits_v2_union_labels.npy'), allow_pickle=True)
 perm = []
 for l in labels_ordered:
     perm += list(np.where(ul == l)[0])

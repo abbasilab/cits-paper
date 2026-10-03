@@ -1,12 +1,16 @@
 #!/usr/bin/env python3
 # Finer brain-region strips (within-area gradient) + detailed legend (names + counts).
-import numpy as np, matplotlib; matplotlib.use('Agg')
+import os, sys, numpy as np, matplotlib; matplotlib.use('Agg')
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'shared')))
+from paths import outdir as _outdir, result, neuropixels
+def _union(f): return result('fig5_neuropixels', f, fallback=neuropixels(f))   # cits_v2_union_*.npy: $CITS_PAPER_OUT/fig5_neuropixels/ if present, else $NEUROPIXELS_DATA
+
 import matplotlib.pyplot as plt, matplotlib.cm as cm, matplotlib.colors as mcolors
 from matplotlib.patches import Rectangle
 TEAL=mcolors.LinearSegmentedColormap.from_list('teal',['#D6EFEA','#5CB8A8','#0E6B5B'])
 plt.rcParams['font.family']='sans-serif'
 plt.rcParams['font.sans-serif']=['Arial','Liberation Sans','Nimbus Sans','DejaVu Sans']  # Arial (Liberation Sans = Arial-metric substitute)
-OUT='/home/rbiswas1/microns/CITS_manuscript/figures'
+OUT=_outdir('fig5_neuropixels')   # was CITS_manuscript/figures
 METHODS=['CORR','GC1','GC2','CITS']; TITLES=['Pearson Corr.','GC1','GC2','CITS']
 STIMS=['natural_scenes','static_gratings','gabors']
 SLAB={'natural_scenes':'Natural Scenes','static_gratings':'Static Gratings','gabors':'Gabors'}
@@ -22,7 +26,7 @@ RCOL={}
 for gname,regs,cmap,(a,b) in GROUPS:
     for k,r in enumerate(regs):
         RCOL[r]=cmap(a+(b-a)*(k/max(1,len(regs)-1)))
-ul=np.load(f'{OUT}/cits_v2_union_labels.npy',allow_pickle=True)
+ul=np.load(_union('cits_v2_union_labels.npy'),allow_pickle=True)
 perm=[]
 for l in lo: perm+=list(np.where(ul==l)[0])
 perm=np.array(perm); labels_pos=ul[perm]

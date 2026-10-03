@@ -2,17 +2,18 @@
 """Three SEPARATE population plots (a Adjacent, b Non-adjacent common-cause/chain/path,
 c Non-adjacent collider) -- same data/analysis as plot_motif_population_v2.py, split
 into standalone figures. Each: motif schematic (top) + the two bars (A⊥B, A⊥B|S)."""
-import sys, pickle as pkl
+import os, sys, pickle as pkl
 from itertools import combinations
 import numpy as np
 import matplotlib; matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 from matplotlib.patches import Circle, FancyArrowPatch
 from matplotlib.transforms import blended_transform_factory
-sys.path.insert(0, '/home/rbiswas1/repos/cits')
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'shared')))
+from paths import outdir as _outdir, neuropixels
 from cits.methods import data_transform, partial_corr
 
-DATA_DIR='/home/rbiswas1/citsproject/data'; OUT='/home/rbiswas1/microns/CITS_manuscript/figures'
+DATA_DIR=neuropixels(); OUT=_outdir('fig4_motifs')   # were citsproject/data and CITS_manuscript/figures
 SESS,STIM,BIN,IDX,TAU,ALPHA=791319847,'natural_scenes',0.01,0,1,0.05; MARG_DEP=0.1
 raw=np.asarray(pkl.load(open(f'{DATA_DIR}/ID{SESS}_{STIM}_bin_{BIN}_X_idx-{IDX}.p','rb')),float)
 mask=np.asarray(pkl.load(open(f'{DATA_DIR}/ID{SESS}_{STIM}_units2use_stim_{STIM}.p','rb')))

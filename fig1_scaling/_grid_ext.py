@@ -3,9 +3,11 @@ demonstrate (not extrapolate) whether they wall before CITS-GPU's p=1000.
 Fork-free fresh subprocess, 3-seed w/ auto-continue, 30-min cap, certified."""
 import os, sys, time, subprocess
 import pandas as pd
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'shared')))
+from paths import out as _out
 BUDGET=1800; NCPU=os.cpu_count(); SEEDS=[0,1,2]
 METHODS=['TPC','KernelGC']; P=[1000]; N_GRID=[125,250,500]
-OUT='grid_ext.csv'; rows=[]
+OUT=_out('fig1_scaling', 'grid_ext.csv'); rows=[]
 def run_cell(cmd):
     loads=[]; pr=subprocess.Popen(cmd,stdout=subprocess.PIPE,stderr=subprocess.DEVNULL,text=True)
     t0=time.perf_counter()

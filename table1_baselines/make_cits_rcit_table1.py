@@ -1,12 +1,14 @@
 """CITS column of Table 1 for the RCIT cells (non-linear AR and both spiking blocks), with the
 packaged cits.cits_rcit (cits >= 1.9.0), uncapped conditioning, K=25, alpha=0.05, tau=1, seeds 0-49.
-Writes source_data/cits_rcit_uncapped_perseed.csv and prints mean +/- s.d. per cell and the
+Writes $CITS_PAPER_OUT/table1_baselines/cits_rcit_uncapped_perseed.csv (the committed copy is in
+source_data/) and prints mean +/- s.d. per cell and the
 self-edge rates. Device: env CITS_DEV (default cuda:0; 'cpu' works, slower).
 Run from this folder with ../shared on PYTHONPATH."""
 import os, sys, numpy as np, pandas as pd, warnings
 warnings.filterwarnings('ignore')
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.join(HERE, '..', 'shared'))
+from paths import out as _out
 from cits import cits_rcit
 from sim_scm import simulate_extended
 from directed_metrics import compute_directed_metrics
@@ -46,7 +48,7 @@ for SH, block in ((0.0, 'control'), (-1.5, 'recurrent')):
                              self_frac=float(np.mean(np.diag(B) > 0))))
 df = pd.DataFrame(rows)
 os.makedirs(os.path.join(HERE, 'source_data'), exist_ok=True)
-df.to_csv(os.path.join(HERE, 'source_data', 'cits_rcit_uncapped_perseed.csv'), index=False)
+df.to_csv(_out('table1_baselines', 'cits_rcit_uncapped_perseed.csv'), index=False)
 print(df.groupby(['block', 'cell'], sort=False)['cs'].agg(['mean', 'std']).round(3))
 print(df.groupby('block', sort=False)['cs'].mean().round(3))
 print('self-edge rate:', df.groupby('block', sort=False)['self_frac'].mean().round(4).to_dict())

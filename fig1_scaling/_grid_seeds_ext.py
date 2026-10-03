@@ -4,17 +4,19 @@ keeps certified seeds 0-2). Phased so there is a clean uniform checkpoint:
 All cells here are FEASIBLE (they completed at n=3), so NO per-cell kill budget.
 Memory-gated so the box cannot OOM. Resumable: skips (method,p,N,seed) already done.
 Output: grid_seeds_ext.csv (method,p,N,seed,status,cs)."""
-import os, time, subprocess, tempfile, psutil
+import os, sys, time, subprocess, tempfile, psutil
 import pandas as pd
 _THIS = os.path.dirname(os.path.abspath(__file__)); os.chdir(_THIS)
+sys.path.insert(0, os.path.abspath(os.path.join(_THIS, '..', 'shared')))
+from paths import out as _out, outdir, result
 PHASES     = [[3,4],[5,6,7,8,9]]
 MAX_CONC   = 8
 MEM_RESERVE= 220            # GB free floor
 CPU_THREADS= 16
 GPUS       = ['0','3','4','5']; MAX_PER_GPU = 1
-OUT        = 'grid_seeds_ext.csv'
-TMP        = tempfile.mkdtemp(prefix='seedext_')
-feas = pd.read_csv('_feasible_cells.csv')
+OUT        = _out('fig1_scaling', 'grid_seeds_ext.csv')
+TMP        = tempfile.mkdtemp(prefix='seedext_', dir=outdir('fig1_scaling/tmp'))
+feas = pd.read_csv(result('fig1_scaling', '_feasible_cells.csv'))
 done=set(); results=[]
 if os.path.exists(OUT):
     dd=pd.read_csv(OUT); results=dd.to_dict('records')

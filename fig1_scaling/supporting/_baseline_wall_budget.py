@@ -12,7 +12,8 @@ import os, sys, time, warnings
 import multiprocessing as mp
 warnings.filterwarnings('ignore')
 _THIS = os.path.dirname(os.path.abspath(__file__))
-for _p in (_THIS, '/home/rbiswas1/repos/cits'):
+# _THIS, the parent fig1_scaling/ (scaling_benchmark_lg) and the repo's shared/
+for _p in (_THIS, os.path.dirname(_THIS), os.path.join(os.path.dirname(os.path.dirname(_THIS)), 'shared')):
     if _p not in sys.path: sys.path.insert(0, _p)
 import numpy as np, pandas as pd
 from scaling_benchmark_lg import lg_var, directed_cs, _worker
@@ -24,7 +25,8 @@ SEEDS = 2
 P_VALUES = [25, 50, 100, 250, 500]
 N_GRID = [250, 500, 1000]
 METHODS = ['PCMCI+', 'LPCMCI', 'TPC', 'KernelGC']
-OUT = os.path.join(_THIS, 'baseline_wall_budget.csv')
+from paths import out as _out
+OUT = _out('fig1_scaling/supporting', 'baseline_wall_budget.csv')
 
 
 def run_timed(method, X):

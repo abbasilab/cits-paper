@@ -81,13 +81,15 @@ warnings.filterwarnings('ignore')
 
 # -- Paths ---------------------------------------------------------------------
 _THIS_DIR = os.path.dirname(os.path.abspath(__file__))
-_REPO_CITS = '/home/rbiswas1/repos/cits'
-_OVERLEAF  = '/home/rbiswas1/microns/arousal_paper_overleaf'
-OUT_DIR    = os.path.join(_OVERLEAF,
-                          'figures/2026-06-02_simulation_benchmark_v3_mixed')
+if _THIS_DIR not in sys.path:   # shared/ (paths.py)
+    sys.path.insert(0, _THIS_DIR)
+from paths import OUT_ROOT as _OUT_ROOT
+# outputs of this module's own __main__ benchmark (was arousal_paper_overleaf/figures/2026-06-02_simulation_benchmark_v3_mixed)
+OUT_DIR    = os.path.join(_OUT_ROOT, 'shared',
+                          '2026-06-02_simulation_benchmark_v3_mixed')
 OUT_CSV    = os.path.join(OUT_DIR, 'simulation_results_v3.csv')
 
-for _p in [_THIS_DIR, _REPO_CITS]:
+for _p in [_THIS_DIR]:
     if _p not in sys.path:
         sys.path.insert(0, _p)
 

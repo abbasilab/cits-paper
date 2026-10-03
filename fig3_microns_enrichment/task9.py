@@ -1,7 +1,10 @@
 import pandas as pd, numpy as np
 from scipy.stats import wilcoxon
+import os, sys
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'shared')))
+from paths import result
 
-df = pd.read_csv("/home/rbiswas1/microns/analysis/stimulus_fc/results/stimulus_fc_combined.csv")
+df = pd.read_csv(result('fig3_microns_enrichment', 'results/stimulus_fc_combined.csv'))
 print("stim values:", df['stim'].unique(), " nrows:", len(df))
 
 # map stim labels (clip lowercase) to requested display names

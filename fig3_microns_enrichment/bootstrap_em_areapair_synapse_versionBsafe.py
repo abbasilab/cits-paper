@@ -14,16 +14,18 @@ Outputs (fig2/):
   em_areapair_synapse_versionBsafe.npz   bootstrap frac arrays (for brackets)
 """
 import os
+import sys
 import glob
 import pickle
 import numpy as np
 import pandas as pd
 
-SAVES = '/data1/rb1/microns/saves/'
-FIGS = '/home/rbiswas1/microns/arousal_paper_overleaf/figures'
-EM_KEYS_NPZ = f'{FIGS}/2026-04-29/fig4/bootstrap_sf_correlation_13sess.npz'
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'shared')))
+from paths import outdir as _outdir, MICRONS_SAVES, arousal_figs, microns_meta
+SAVES = os.path.join(MICRONS_SAVES, '')
+EM_KEYS_NPZ = arousal_figs('2026-04-29', 'fig4', 'bootstrap_sf_correlation_13sess.npz')
 METHOD_DIR = SAVES + 'cits_plus_pc_versionBsafe_2026-05-28/'
-OUTDIR = f'{FIGS}/2026-06-01_versionBsafe/fig2'
+OUTDIR = _outdir('fig3_microns_enrichment')   # was arousal_paper_overleaf/figures/2026-06-01_versionBsafe/fig2
 ALL_GLOB = 'output_*pupil*_session{s}_scan{sc}_field{f}.csv'
 
 # Same pair order as the FC fig2 barplots (plot_fig2_per_state_barplots_..._versionBsafe.py)
@@ -119,7 +121,7 @@ def main():
     matched_df = pickle.load(open(SAVES + 'matched_df_v1718.pkl', 'rb'))
     matched_df = matched_df.dropna(subset=['pt_root_id_v1718']).copy()
     matched_df['pt_root_id_v1718'] = matched_df['pt_root_id_v1718'].astype(np.int64)
-    areas = pd.read_csv('/home/rbiswas1/microns/all_unit_areas.csv')
+    areas = pd.read_csv(microns_meta('all_unit_areas.csv'))
     area_map = {(int(s), int(sc), int(u)): a for s, sc, u, a in
                 areas[['session', 'scan_idx', 'unit_id', 'brain_area']].itertuples(index=False)}
     syn = pickle.load(open(SAVES + 'synapses_matcheddf_frompre_v1718.pkl', 'rb'))

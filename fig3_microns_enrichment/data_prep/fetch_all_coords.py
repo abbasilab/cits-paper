@@ -14,6 +14,9 @@ dj.config['database.password'] = os.environ['DJ_PASS']  # REDACTED: was a hard-c
 dj.config['database.use_tls'] = False
 
 from microns_phase3 import nda
+import sys
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '..', 'shared')))
+from paths import out as _out
 
 print("Fetching all unit coordinates from DataJoint...")
 # Fetch all units at once
@@ -25,7 +28,7 @@ print(f"Fetched {len(units)} units.")
 df = pd.DataFrame(units)
 
 # Save to pickle
-output_file = '/home/rbiswas1/microns/all_unit_coords.pkl'
+output_file = _out('fig3_microns_enrichment/data_prep', 'all_unit_coords.pkl')   # was <MICRONS_META>/all_unit_coords.pkl
 df.to_pickle(output_file)
 print(f"Saved to {output_file}")
 print(df.head())

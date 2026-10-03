@@ -44,7 +44,7 @@ from the non-CITS off-diagonal entries. Assign magnitudes sampled (with
 replacement) from the PC_contemp nonzero magnitude distribution.
 RNG seed fixed per field (hash of field key) for reproducibility.
 
-Persistent cache: /data1/rb1/microns/saves/cits_pc_contemporaneous_2026-05-23/
+Persistent cache: $CITS_PAPER_OUT/shared/cits_pc_contemporaneous_2026-05-23/ (was <MICRONS_SAVES>/cits_pc_contemporaneous_2026-05-23/)
   output_{name}_session{S}_scan{SC}_field{F}.csv  -- (p, p) PC-contemp weight matrix
     Row i, col j: |r_ij| (l=0 Pearson r) if edge (i,j) survives PC, else 0.
     Matrix is symmetric. Diagonal is 0.
@@ -89,38 +89,39 @@ from matplotlib.lines import Line2D
 warnings.filterwarnings('ignore')
 
 # ── Analysis dir on sys.path for CITS modules ─────────────────────────────────
-_ANALYSIS_DIR = '/home/rbiswas1/microns/analysis/functional_circuitry'
+_ANALYSIS_DIR = os.path.dirname(os.path.abspath(__file__))   # repo shared/ (was analysis/functional_circuitry)
 if _ANALYSIS_DIR not in sys.path:
     sys.path.insert(0, _ANALYSIS_DIR)
 
 # ── Paths ──────────────────────────────────────────────────────────────────────
-SAVES_DIR   = '/data1/rb1/microns/saves/'
+from paths import MICRONS_SAVES, OUT_ROOT, arousal_figs, microns_meta
+SAVES_DIR   = os.path.join(MICRONS_SAVES, '')
 TPC_DIR     = os.path.join(SAVES_DIR, 'cfc_raw_2026-04-28/')
 CITS_DIR    = os.path.join(SAVES_DIR, 'cits_pc_raw_2026-05-13/')
-CONTEMP_DIR = '/data1/rb1/microns/saves/cits_pc_contemporaneous_2026-05-23/'
+CONTEMP_DIR = os.path.join(OUT_ROOT, 'shared', 'cits_pc_contemporaneous_2026-05-23', '')   # cache (read + write)
 
 MATCHED_DF_PATH  = os.path.join(SAVES_DIR, 'matched_df_v1718.pkl')
 SYN_CACHE_PATH   = os.path.join(SAVES_DIR, 'synapses_matcheddf_frompre_v1718.pkl')
 
-OVERLEAF    = '/home/rbiswas1/microns/arousal_paper_overleaf'
-EM_JSON     = os.path.join(OVERLEAF,
-    'figures/2026-05-09/without_autapses/fig1_sc/'
+# arousal-pipeline inputs: $AROUSAL_FIGS = arousal_paper_overleaf/figures
+EM_JSON     = os.path.join(arousal_figs(),
+    '2026-05-09/without_autapses/fig1_sc/'
     'em_within_area_density_matcheddf_only_results_v1718.json')
-EM_FIELD_KEYS_NPZ = os.path.join(OVERLEAF,
-    'figures/2026-04-29/fig4/bootstrap_sf_correlation_13sess.npz')
-TPC_NPZ   = os.path.join(OVERLEAF,
-    'figures/2026-04-29/fig2/bootstrap_perfield_means_13sess.npz')
-CITS_NPZ  = os.path.join(OVERLEAF,
-    'figures/2026-05-16_cits/bootstrap_perfield_means_13sess.npz')
-PRIOR_COMBINED_CSV = os.path.join(OVERLEAF,
-    'figures/2026-05-20/tpc_lag0_into_cits_test.csv')
+EM_FIELD_KEYS_NPZ = os.path.join(arousal_figs(),
+    '2026-04-29/fig4/bootstrap_sf_correlation_13sess.npz')
+TPC_NPZ   = os.path.join(arousal_figs(),
+    '2026-04-29/fig2/bootstrap_perfield_means_13sess.npz')
+CITS_NPZ  = os.path.join(arousal_figs(),
+    '2026-05-16_cits/bootstrap_perfield_means_13sess.npz')
+PRIOR_COMBINED_CSV = os.path.join(arousal_figs(),
+    '2026-05-20/tpc_lag0_into_cits_test.csv')
 
-OUTDIR      = os.path.join(OVERLEAF, 'figures/2026-05-23')
+OUTDIR      = os.path.join(OUT_ROOT, 'shared', '2026-05-23')   # was arousal_paper_overleaf/figures/2026-05-23
 OUT_CSV     = os.path.join(OUTDIR, 'cits_plus_pc_contemporaneous_test.csv')
 OUT_FIG_PNG = os.path.join(OUTDIR, 'fig_area_level_EM_vs_FC_TPC_CITS_PCCONTEMP_NULL.png')
 OUT_FIG_PDF = os.path.join(OUTDIR, 'fig_area_level_EM_vs_FC_TPC_CITS_PCCONTEMP_NULL.pdf')
 
-AREA_FILE   = '/home/rbiswas1/microns/all_unit_areas.csv'
+AREA_FILE   = microns_meta('all_unit_areas.csv')
 
 # ── Parameters ─────────────────────────────────────────────────────────────────
 TAU           = 1         # same as CITS

@@ -5,15 +5,16 @@ Concatenate all presentations (raw P, unsmoothed), tile into non-overlapping 90 
 Each window has ~9000 bins (high power, like 5A), so consistency across them is meaningful.
 Outputs cits_v2_directedB_W90WIN_<stim>_{fwd,w,pboot}68.npy."""
 import os, sys, numpy as np, pickle as pkl, time
-AD = '/home/rbiswas1/microns/analysis/functional_circuitry'
-for p_ in (AD, '/home/rbiswas1/repos/cits', '/home/rbiswas1/repos/cupc',
-           '/home/rbiswas1/microns/CITS_manuscript/figures'):
+AD = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'shared'))   # repo shared/ (was analysis/functional_circuitry)
+# this folder holds _neuropixels_versionB_pooled.py (was CITS_manuscript/figures)
+for p_ in (AD, os.path.dirname(os.path.abspath(__file__))):
     if p_ not in sys.path:
         sys.path.insert(0, p_)
 from _neuropixels_versionB_pooled import versionB_directed, permute, unit_to_union
+from paths import outdir as _outdir, neuropixels
 
-SESS, DATA = 791319847, '/home/rbiswas1/citsproject/data'
-OUT = '/home/rbiswas1/microns/CITS_manuscript/figures'
+SESS, DATA = 791319847, neuropixels()   # was citsproject/data
+OUT = _outdir('fig5_neuropixels')   # was CITS_manuscript/figures
 STIMS = ['natural_scenes', 'static_gratings', 'gabors']
 if os.environ.get('ONLY_STIM'):
     STIMS = [os.environ['ONLY_STIM']]

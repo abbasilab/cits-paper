@@ -10,11 +10,13 @@ args = ap.parse_args()
 os.environ['CUDA_VISIBLE_DEVICES'] = args.gpu           # before any cuda import
 os.environ.setdefault('OMP_NUM_THREADS', '8')
 
-sys.path.insert(0, '/home/rbiswas1/microns/analysis/stimulus_fc')
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))   # stim_fc_pipeline.py (was analysis/stimulus_fc)
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'shared')))
+from paths import outdir as _outdir
 import numpy as np, pandas as pd
 import stim_fc_pipeline as P
 
-OUT = '/home/rbiswas1/microns/analysis/stimulus_fc/out'
+OUT = _outdir('fig3_microns_enrichment/out')
 FCDIR = f'{OUT}/fc'; os.makedirs(FCDIR, exist_ok=True); os.makedirs(OUT, exist_ok=True)
 STIMS = ['clip', 'Monet', 'Trippy']
 tasks = [(s, sc, f, st) for (s, sc) in P.scans() for f in range(1, 9) for st in STIMS]

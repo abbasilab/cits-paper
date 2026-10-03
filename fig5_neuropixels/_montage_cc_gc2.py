@@ -1,7 +1,11 @@
 #!/usr/bin/env python3
 """Fig 5A GC2 column (bruceR conditional Granger, VAR order 1) on the SAME concatenated
 90 s window. Run in the gc2r conda env. Outputs cmp_cc_<stim>_GC2_68.npy."""
-import sys, io, numpy as np, pickle as pkl
+import os, sys, io, numpy as np, pickle as pkl
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'shared')))
+from paths import outdir as _outdir, result, neuropixels
+def _union(f): return result('fig5_neuropixels', f, fallback=neuropixels(f))   # cits_v2_union_*.npy: $CITS_PAPER_OUT/fig5_neuropixels/ if present, else $NEUROPIXELS_DATA
+
 from contextlib import redirect_stdout, redirect_stderr
 import rpy2.robjects as ro
 from rpy2.robjects.packages import importr
@@ -9,13 +13,13 @@ from rpy2.robjects import FloatVector, DataFrame
 from rpy2.rlike.container import OrdDict
 gcpack = importr('bruceR'); vars = importr('vars')
 
-SESS, DATA = 791319847, '/home/rbiswas1/citsproject/data'
-OUT = '/home/rbiswas1/microns/CITS_manuscript/figures'
+SESS, DATA = 791319847, neuropixels()   # was citsproject/data
+OUT = _outdir('fig5_neuropixels')   # was CITS_manuscript/figures
 STIMS = ['natural_scenes', 'static_gratings', 'gabors']
 WBINS, ALPHA = 9000, 0.05
 labels_ordered = ['VISp', 'VISl', 'VISrl', 'VISal', 'VISpm', 'VISam',
                   'CA1', 'CA2', 'CA3', 'DG', 'SUB', 'POL', 'LGv', 'LP']
-uu = np.load(f'{OUT}/cits_v2_union_units.npy'); ul = np.load(f'{OUT}/cits_v2_union_labels.npy', allow_pickle=True)
+uu = np.load(_union('cits_v2_union_units.npy')); ul = np.load(_union('cits_v2_union_labels.npy'), allow_pickle=True)
 perm = []
 for l in labels_ordered:
     perm += list(np.where(ul == l)[0])

@@ -4,8 +4,10 @@ in the time-windowed data; the coefficient of the parent is the CITS (LSCM) edge
 weight. Sign = sign(median weight), reported only where the weight is significantly
 != 0 (OLS t-test) in most datasets; else 'sign n/a' (single-dataset-valid rule).
 This is the same signed-LSCM convention used by the neural (Version B) pipeline."""
-import numpy as np, sys, json, warnings; warnings.filterwarnings('ignore')
-sys.path.insert(0,'.'); sys.path.insert(0,'/home/rbiswas1/repos/cits')
+import numpy as np, sys, os, json, warnings; warnings.filterwarnings('ignore')
+sys.path.insert(0,'.'); sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'shared')))
+from paths import out as _out
+OUT_JSON = _out('fig2_simulations', '_fig2_edgesign.json')
 from sim_scm import simulate_extended
 from cits.methods import data_transformed
 from scipy import stats
@@ -37,5 +39,5 @@ for reg,edges in TE.items():
               'sign':sign,'frac_sig':frac_sig}
     out[reg]=o
     print(reg,{k:f"{v['med']:+.2f}[{v['lo']:.2f},{v['hi']:.2f}] sig{v['frac_sig']:.2f} {v['sign']}" for k,v in o.items()},flush=True)
-json.dump(out,open('_fig2_edgesign.json','w'),indent=1)
+json.dump(out,open(OUT_JSON,'w'),indent=1)
 print("EDGESIGN DONE",flush=True)

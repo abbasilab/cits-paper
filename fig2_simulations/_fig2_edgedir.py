@@ -2,8 +2,10 @@
 Nonparametric partial Spearman: residualize child and parent on the OTHER
 parents (+ self-history) with a cross-fitted kNN, then rank-correlate.
 Sign = increasing(+)/decreasing(-); |rho|<=THR -> non-monotone (none)."""
-import numpy as np, sys, json, warnings; warnings.filterwarnings('ignore')
-sys.path.insert(0,'.'); sys.path.insert(0,'/home/rbiswas1/repos/cits')
+import numpy as np, sys, os, json, warnings; warnings.filterwarnings('ignore')
+sys.path.insert(0,'.'); sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'shared')))
+from paths import out as _out
+OUT_JSON = _out('fig2_simulations', '_fig2_edgedir.json')
 from sim_scm import simulate_extended
 from cits.methods import data_transformed
 from scipy import stats
@@ -36,5 +38,5 @@ for reg,edges in TE.items():
         rec[f"{i+1}->{j+1}"]={'spearman':m,'dir':direction}
     out[reg]=rec
     print(reg,{k:f"{v['spearman']:+.2f}{v['dir']}" for k,v in rec.items()},flush=True)
-json.dump(out,open('_fig2_edgedir.json','w'),indent=1)
+json.dump(out,open(OUT_JSON,'w'),indent=1)
 print("EDGEDIR DONE",flush=True)
