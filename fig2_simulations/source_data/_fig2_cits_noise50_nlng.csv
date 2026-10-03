@@ -293,7 +293,7 @@ CITS,nonlinnongauss1,2.5,40,1.0,0.0,1.0
 CITS,nonlinnongauss1,2.5,41,1.0,0.0,1.0
 CITS,nonlinnongauss1,2.5,42,1.0,0.0,1.0
 CITS,nonlinnongauss1,2.5,43,1.0,0.0,1.0
-CITS,nonlinnongauss1,2.5,44,1.0,0.111111,0.888889
+CITS,nonlinnongauss1,2.5,44,1.0,0.0,1.0
 CITS,nonlinnongauss1,2.5,45,1.0,0.0,1.0
 CITS,nonlinnongauss1,2.5,46,1.0,0.0,1.0
 CITS,nonlinnongauss1,2.5,47,1.0,0.0,1.0
@@ -594,7 +594,7 @@ CITS,nonlinnongauss2,1.5,41,1.0,0.0,1.0
 CITS,nonlinnongauss2,1.5,42,1.0,0.0,1.0
 CITS,nonlinnongauss2,1.5,43,1.0,0.0,1.0
 CITS,nonlinnongauss2,1.5,44,1.0,0.0,1.0
-CITS,nonlinnongauss2,1.5,45,0.75,0.125,0.625
+CITS,nonlinnongauss2,1.5,45,1.0,0.0,1.0
 CITS,nonlinnongauss2,1.5,46,1.0,0.0,1.0
 CITS,nonlinnongauss2,1.5,47,1.0,0.0,1.0
 CITS,nonlinnongauss2,1.5,48,1.0,0.0,1.0
@@ -710,7 +710,7 @@ CITS,nonlinnongauss2,3,7,1.0,0.0,1.0
 CITS,nonlinnongauss2,3,8,0.75,0.0,0.75
 CITS,nonlinnongauss2,3,9,1.0,0.0,1.0
 CITS,nonlinnongauss2,3,10,0.75,0.0,0.75
-CITS,nonlinnongauss2,3,11,1.0,0.0,1.0
+CITS,nonlinnongauss2,3,11,0.75,0.0,0.75
 CITS,nonlinnongauss2,3,12,1.0,0.0,1.0
 CITS,nonlinnongauss2,3,13,1.0,0.0,1.0
 CITS,nonlinnongauss2,3,14,0.75,0.0,0.75

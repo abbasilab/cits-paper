@@ -12,7 +12,9 @@ def m3(pred,out):
     return m['directed_TPR_strict'],m['directed_FPR_strict'],m['directed_CS_strict']
 NOISE=[0.1,0.5,1,1.5,2,2.5,3,3.5]
 w=csv.writer(open(_out('fig2_simulations', '_fig2_cits_noise50.csv'),'w',newline='')); w.writerow(['method','regime','noise','seed','TPR','FPR','CS'])
-for reg,linear in [('lingauss1',True),('lingauss2',True),('nonlinnongauss1',False),('nonlinnongauss2',False)]:
+# Linear paradigms only (cuPC, partial correlation). The non-linear paradigms are run by
+# _fig2_cits_noise_nlng.py with the RCIT test; running them here too would duplicate rows.
+for reg,linear in [('lingauss1',True),('lingauss2',True)]:
   for nz in NOISE:
     for s in range(50):
         out=simulate_extended(reg,nz,1000,s); X=out[0].astype(np.float64)

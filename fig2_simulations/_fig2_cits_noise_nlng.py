@@ -4,7 +4,7 @@ from paths import out as _out, CUPC_DIR
 os.environ.setdefault('CUPC_DIR', CUPC_DIR)
 from sim_scm import simulate_extended
 from directed_metrics import compute_directed_metrics
-from gpu_cits_lag_rcit import gpu_cits_lag_rcit
+from cits import cits_rcit  # cits >= 1.9.0; uncapped conditioning, as in the paper
 DEV=os.environ.get('CITS_DEV','cuda:1')
 def m3(pred,out):
     _,gl_uw,gl_w,gc_uw,gc_w,gb_uw,gb_lw,gb_cw=out
@@ -16,7 +16,7 @@ for reg in ['nonlinnongauss1','nonlinnongauss2']:
   for nz in NOISE:
     for s in range(50):
         out=simulate_extended(reg,nz,1000,s); X=out[0].astype(np.float64)
-        B=gpu_cits_lag_rcit(X,alpha=0.05,tau=1,K=25,n_perm=100,max_cond_size=5,seed=s,device=DEV,null='gamma')
+        B=cits_rcit(X,alpha=0.05,tau=1,K=25,max_cond_size=None,seed=s,device=DEV,null='gamma')
         p=(np.asarray(B)!=0).astype(int); np.fill_diagonal(p,0); t,f,c=m3(p,out); w.writerow(['CITS',reg,nz,s,t,f,c])
   print("done",reg,flush=True)
 print("CITS NLNG NOISE50 DONE",flush=True)

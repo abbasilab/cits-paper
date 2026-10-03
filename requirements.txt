@@ -21,6 +21,7 @@ numba==0.61.2
 pillow==11.1.0
 psutil==6.1.0
 tqdm==4.67.1
+pypdf>=4            # fig2_simulations/make_fig2_full.py (figure assembly only)
 
 # GPU CI tests (RCIT / HSIC) and batched residualization; the runs used the CUDA 12.8 wheels
 torch==2.9.1

@@ -93,14 +93,23 @@ superseded by `_grid_v3.py`). None of them feeds a figure; their CSVs go to
 
 | Panel | Script(s) | Inputs | Outputs | Command |
 |---|---|---|---|---|
-| A–C (assembly) | `fig2_simulations/_fig2_orig_assemble.py` | the five per-seed CSVs below and `_fig2_edgesign.json` from `<OUT>/fig2_simulations/` (fallback `source_data/` for the four committed CSVs) | `<OUT>/fig2_simulations/fig2_orig.{png,pdf}` (byte-identical to `figures/fig2.pdf`) | `python _fig2_orig_assemble.py` |
+| A–C (assembly) | `fig2_simulations/_fig2_orig_assemble.py` | the five per-seed CSVs below and `_fig2_edgesign.json` from `<OUT>/fig2_simulations/` (fallback `source_data/`) | `<OUT>/fig2_simulations/fig2_orig.{png,pdf}` | `python _fig2_orig_assemble.py` |
+| full figure A–F (as in the paper) | `fig2_simulations/make_fig2_full.py` | `fig2_orig.pdf` above + the scaling grid (relabelled D–F) | `<OUT>/fig2_simulations/fig2.pdf` | `python make_fig2_full.py` |
 | GC1, GC2, PC, TPC (η ∈ {0.1, …, 3.5}, 50 seeds) | `_fig2_baselines_noise.py` | `sim_scm.simulate_extended` | `<OUT>/fig2_simulations/_fig2_baselines_noise50.csv` | `python _fig2_baselines_noise.py` |
 | CITS, linear paradigms (cuPC, partial correlation) | `_fig2_cits_noise_perregime.py` | same | `<OUT>/fig2_simulations/_fig2_cits_noise50.csv` (holds the two linear paradigms) | `python _fig2_cits_noise_perregime.py` |
-| CITS, non-linear paradigms (GPU RCIT) | `_fig2_cits_noise_nlng.py` | same | `<OUT>/fig2_simulations/_fig2_cits_noise50_nlng.csv` | `CITS_DEV=cuda:0 python _fig2_cits_noise_nlng.py` |
+| CITS, non-linear paradigms (RCIT, packaged `cits.cits_rcit`, no cap on the conditioning set) | `_fig2_cits_noise_nlng.py` | same | `<OUT>/fig2_simulations/_fig2_cits_noise50_nlng.csv` | `CITS_DEV=cuda:0 python _fig2_cits_noise_nlng.py` (or `CITS_DEV=cpu`) |
 | Kernel GC | `_fig2_kgc_noise.py` | same | `<OUT>/fig2_simulations/_fig2_kgc_noise50.csv` | `python _fig2_kgc_noise.py` |
 | PCMCI+, LPCMCI (ParCorr) | `_fig2_pcmci_noise.py` | same | `<OUT>/fig2_simulations/_fig2_pcmci_noise50.csv` | `python _fig2_pcmci_noise.py` |
 | C (edge weights and signs) | `_fig2_edgesign.py` | same | `<OUT>/fig2_simulations/_fig2_edgesign.json` | `python _fig2_edgesign.py` |
 | text: signs agree with a partial-rank estimate | `_fig2_edgedir.py` | same | `<OUT>/fig2_simulations/_fig2_edgedir.json` | `python _fig2_edgedir.py` |
+
+**Fig 2 provenance note (2026-10-03).** The committed CITS source data come from a rerun with the
+released code. Linear Gaussian 1: the original run gave CS 0.996 at every noise level; the rerun gives
+0.993 (3 of 50 seeds differ by one borderline false-positive edge). The rerun matches an independent
+CPU PC-stable reference exactly, is identical across GPUs and machines, and is what the paper reports;
+the original run predates a change to the simulator module and cannot be regenerated. Non-linear
+paradigms: rerun without the conditioning-set cap (`max_cond_size=None`), matching Table 1; this
+changes 3 of 800 runs (η = 2.5, 1.5, 3.0; at most 0.008) and nothing at η = 1.
 
 ### Table 1 (`tab:modern_baselines`): combined score versus state-of-the-art baselines
 
