@@ -111,7 +111,19 @@ the original run predates a change to the simulator module and cannot be regener
 paradigms: rerun without the conditioning-set cap (`max_cond_size=None`), matching Table 1; this
 changes 3 of 800 runs (η = 2.5, 1.5, 3.0; at most 0.008) and nothing at η = 1.
 
-### Table 1 (`tab:modern_baselines`): combined score versus state-of-the-art baselines
+### Table 1 (`tab:modern_baselines`)
+
+**Baseline implementations (2026-10-03).** For the small-scale benchmarks (Fig 2 A/B, Table 1), TPC
+and kernel Granger causality use the authors' implementations:
+`table1_baselines/tpc_official_pkg.py` runs `timeawarepc` 2.0.2 (`cfc_tpc`, Fisher-z, α = 0.05,
+no bootstrap; needs R `pcalg` through rpy2), and `table1_baselines/kgc_official_marinazzo.py` runs
+Marinazzo's original `causality.m` (github.com/danielemarinazzo/KernelGrangerCausality, commit
+c043147; polynomial kernel of order 2, model order 2) unchanged in GNU Octave 10.3, with
+`octave_shims/corr.m` supplying MATLAB's `[r, p] = corr(x, y)`. Both run in parallel
+(`N_WORKERS`). Per-seed results: `table1_baselines/source_data/{tpc,kgc}_official_*.csv`. The
+scaling benchmark (Fig 2 D–F) keeps the faster in-repo reimplementations (`run_tpc`,
+`kernel_granger_baseline.py`), because the original implementations cannot run at p = 100–1000.
+: combined score versus state-of-the-art baselines
 
 | Block | Script(s) | Inputs | Outputs | Command |
 |---|---|---|---|---|
