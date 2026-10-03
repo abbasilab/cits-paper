@@ -198,10 +198,11 @@ and does not feed the final figure.
 | `tab:tau_saturation_supp` (CS of CITS at τ = 1, 2, 3; 20 sims; GPU RCIT, \|S\| ≤ 5) | `supplement/tau_sensitivity_gpu.py` | `simulation_benchmark_fc_methods_v3.simulate_extended` | `<DIRECTED_CS>/simulation_results_directed_tau_sensitivity_gpu.csv` (the CTRNN rows are not tabulated) | `python tau_sensitivity_gpu.py` |
 | `tab:selfedge_supp` | the `_spiking_pmatched_*` runs in `table1_baselines/` | – | the `self` fractions in the table above (TPC 88% / 54% = mean over motifs; PCMCI+ 16%; LPCMCI 14%) | see Table 1 |
 | `fig:scaling_supp` (runtime vs p at each N) | `supplement/_make_supp_figure.py` | `grid_v3.csv`, `grid_ext.csv` (from `fig1_scaling/`) | `scaling_grid_supp.png`, `<FIGS>/scaling_supp.{png,pdf}` | `python _make_supp_figure.py` |
-| `tab:cs_supp` (CS by method, N, p; mean of 3 seeds) | no saved script | `fig1_scaling/source_data/cits_scaling_aggregated.csv` | – | see note |
+| `tab:cs_supp` (CS by method, N, p; mean of 3 seeds) | `supplement/make_tab_cs_supp.py` | `fig1_scaling/source_data/cits_scaling_aggregated.csv` | table body (LaTeX), identical to the paper | `python make_tab_cs_supp.py > tab_cs_supp.tex` |
 
-`cits_scaling_aggregated.csv` reproduces every cell of `tab:cs_supp` with `f"{cs_mean:.2f}"`
-(missing = ×, absent = --). It was built by an unsaved one-liner: concatenate `grid_v3.csv`
+`make_tab_cs_supp.py` prints every cell of `tab:cs_supp` (verified identical to the paper):
+`f"{cs_mean:.2f}"`, × when no seed finished within the budget, -- when not run.
+`cits_scaling_aggregated.csv` itself was built by an unsaved one-liner: concatenate `grid_v3.csv`
 and `grid_ext.csv`, then group by `(method, p, N)` to get the mean and s.d. of `cs` over
 `status == "ok"` seeds and the mean `runtime_sec`.
 
@@ -346,7 +347,7 @@ Excluded on purpose:
 
 Items marked **(check)** may need a manuscript or figure fix before publication.
 
-1. **Fig 1A–C and Fig 3A** are illustrations with no generating code.
+1. **Fig 1A–C and Fig 3A** are schematic illustrations (model diagram; map of visual areas). They were drawn by hand and have no generating code.
 2. **Fig 1D (check).** The caption describes "mean runtime per graph at N\*" with × marks at the
    30-minute wall. `_make_scaling_figure.py`, and the PNG placed in the figure deck, instead
    plot runtime at a fixed N = 1000 with no × markers. The in-text "≈33 s per graph at
