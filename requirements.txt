@@ -4,9 +4,9 @@
 # See README.md ("Environment") for the auxiliary environments (tigra, gc2r,
 # micronsnew), the cuPC GPU library, and R packages.
 
-# CITS package (not vendored here). The analyses imported a local checkout of
-# https://github.com/abbasilab/cits (v1.8.x, GPU + contemporaneous code).
-cits>=1.8.3
+# CITS package (not vendored here). v1.9.0 is not yet on PyPI; install it from source first:
+#   git clone https://github.com/abbasilab/cits && pip install "./cits[rcit]"
+# then:  pip install -r requirements.txt
 
 # Scientific stack
 numpy==1.26.4
@@ -29,11 +29,5 @@ torch==2.9.1
 tigramite==5.2.10.1        # PCMCI+ / LPCMCI
 causal-learn==0.1.4.7      # exploratory/latent_confounders/_cits_fci.py only
 
-# Data access
-allensdk==2.16.2           # Allen Brain Observatory Visual Coding Neuropixels (fig5 notebooks)
-caveclient==7.8.0          # MICrONS CAVE (fig3 data_prep)
-datajoint==0.14.3          # MICrONS functional DB (fig3 data_prep; see README for microns_phase3)
-openpyxl==3.1.5            # pandas.to_excel in fig3 data_prep/cits_finalize.ipynb
-
-# R bridge: conditional Granger (bruceR) for Fig 5A GC2 and the exploratory kpcalg check
-rpy2==3.5.11
+# Data access and R bridge: see requirements-data.txt (separate environment;
+# allensdk 2.16.2 requires numpy<1.24, which conflicts with numpy 1.26.4 above).

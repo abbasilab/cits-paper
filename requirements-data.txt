@@ -1,0 +1,15 @@
+# Data-access packages for fig3 data_prep (MICrONS) and the fig5 notebooks (Neuropixels).
+# Install in a SEPARATE environment: allensdk 2.16.2 requires numpy<1.24.
+#   conda create -n cits-data python=3.10 && conda activate cits-data
+#   pip install -r requirements-data.txt
+# The authors' `microns` environment had these alongside numpy 1.26.4 despite the declared
+# allensdk pin; that combination is not installable with a clean resolver.
+
+# Data access
+allensdk==2.16.2           # Allen Brain Observatory Visual Coding Neuropixels (fig5 notebooks)
+caveclient==7.8.0          # MICrONS CAVE (fig3 data_prep)
+datajoint==0.14.3          # MICrONS functional DB (fig3 data_prep; see README for microns_phase3)
+openpyxl==3.1.5            # pandas.to_excel in fig3 data_prep/cits_finalize.ipynb
+
+# R bridge: conditional Granger (bruceR) for Fig 5A GC2 and the exploratory kpcalg check
+rpy2==3.5.11

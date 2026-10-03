@@ -11,13 +11,17 @@ out=open('_sd_gpu2_rcit.csv','w',newline=''); w=csv.writer(out); w.writerow(['ce
 for reg in ['nonlinnongauss1','nonlinnongauss2']:
     for s in range(50):
         o=simulate_extended(reg,1.0,1000,s); X=o[0].astype(np.float64)
-        B=cits_rcit(X,alpha=0.05,tau=1,K=25,max_cond_size=None,seed=s,device='cuda:0',null='gamma')
+        B=cits_rcit(X,alpha=0.05,tau=1,K=25,max_cond_size=None,seed=s,device=os.environ.get('CITS_DEV', 'cuda:0'),null='gamma')
         p=(np.asarray(B)!=0).astype(int); np.fill_diagonal(p,0); w.writerow([f'CITS_{reg}',s,dcs_ar(p,o)])
     out.flush()
 for m in ['depression']:
     for s in range(50):
         X,GT,_=simulate_glm_spiking(s,motif=m)
-        B=cits_rcit(X,alpha=0.05,tau=1,K=25,max_cond_size=None,seed=s,device='cuda:0',null='gamma')
+        B=cits_rcit(X,alpha=0.05,tau=1,K=25,max_cond_size=None,seed=s,device=os.environ.get('CITS_DEV', 'cuda:0'),null='gamma')
         p=(np.asarray(B)!=0).astype(int); np.fill_diagonal(p,0); w.writerow([f'CITS_spk_{m}',s,gdcs(p,GT)[0]])
     out.flush()
-out.close(); print("gpu2 rcit done")
+out.close()
+import pandas as _pd
+_d = _pd.read_csv('_sd_gpu2_rcit.csv')
+print(_d.groupby('cell')['cs'].agg(['mean', 'std', 'count']).round(3))
+print("gpu2 rcit done")

@@ -43,7 +43,9 @@ directory (`analysis/functional_circuitry/`). Put `shared/` on the import path a
 script from its own folder:
 
 ```bash
+git clone https://github.com/abbasilab/cits && pip install "./cits[rcit]"   # CITS v1.9.0 from source
 pip install -r requirements.txt          # plus cuPC and R packages, see Environment
+# data access (allensdk, caveclient, datajoint, rpy2) needs a separate env: requirements-data.txt
 export PYTHONPATH="$PWD/shared:$PYTHONPATH"
 cd fig2_simulations && python _fig2_kgc_noise.py
 ```
@@ -126,10 +128,13 @@ survive only in an ephemeral session directory, so their values are transcribed 
 | chain | recurrent | 0.957±0.116 (0.96) | 0.197±0.086 | 0.389±0.058 | 0.206±0.000 | 0.891±0.114 (1.00) | 0.889±0.102 (1.00) |
 | depression | recurrent | 0.759±0.108 (0.71) | 0.375±0.064 | 0.377±0.071 | 0.391±0.063 | 0.876±0.129 (1.00) | 0.871±0.128 (1.00) |
 
-GC1, GC2 and Kernel GC never emit self-edges (self = 0.00). The CITS run log from gpu-2 is not
-available locally. Its means, from the project summary `analysis/functional_circuitry/_pmatched_results.md`, are:
-control 0.992 / 0.998 / 1.000 (spurious self-edges 0.00–0.01); recurrent 0.993 / 0.993 / 0.994 /
-0.969 (self-edge TPR 0.99). The ±s.d. values for CITS in Table 1 are not backed by any local file.
+GC1, GC2 and Kernel GC never emit self-edges (self = 0.00). CITS per-seed results are in
+`table1_baselines/source_data/cits_rcit_uncapped_perseed.csv` (`make_cits_rcit_table1.py`). Means:
+control 0.992 / 1.000 / 1.000 (spurious self-edges 0.33%); recurrent 0.993 / 0.990 / 0.994 /
+0.969 (self-edge TPR 99.1%). These come from the packaged `cits.cits_rcit` with no cap on the
+conditioning-set size (the scripts below, as updated 2026-10-03; the original runs used
+`max_cond_size=5`, which differs in 2 of 450 runs: common cause & effect 0.998 / 0.993).
+The table's ±s.d. values are from this rerun.
 
 ### Fig 3 (`fig:microns_stim`): MICrONS stimulus FC versus the EM connectome
 
