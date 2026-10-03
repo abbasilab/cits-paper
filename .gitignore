@@ -58,3 +58,6 @@ env/
 
 # ---- Default output root (shared/paths.py: CITS_PAPER_OUT) ----
 outputs/
+
+# committed source data (overrides the *.json rule above)
+!**/source_data/*.json
