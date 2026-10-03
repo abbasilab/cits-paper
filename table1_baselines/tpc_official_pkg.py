@@ -53,9 +53,14 @@ def cs_full(pred, GT):                      # verbatim scoring from _spiking_pma
 
 
 LAGGED_ONLY = os.environ.get('TPC_LAGGED_ONLY', '1') == '1'
+# CI test: 'auto' (default) = Fisher-z on the linear-Gaussian paradigms and the package's
+# distribution-free kernel test (isgauss=False; R kpcalg, HSIC permutation) on non-Gaussian data
+# (non-linear paradigms, spiking counts), mirroring CITS (partial correlation vs RCIT).
+# 'gauss' = Fisher-z everywhere (the earlier benchmark setting).
+TPC_TEST = os.environ.get('TPC_TEST', 'auto')
 
 
-def tpc_pkg(X):
+def tpc_pkg(X, gauss=True):
     """TPC via the package. LAGGED_ONLY (default): the package's own steps (time-delay transform,
     PC, IDA effects) with the rolled graph built from lagged edges only (source slot earlier than
     target slot), then the package's magnitude pruning. This matches CITS, which reports lagged
@@ -63,11 +68,11 @@ def tpc_pkg(X):
     TPC_LAGGED_ONLY=0 it calls cfc_tpc unchanged (lagged + contemporaneous edges)."""
     from timeawarepc import tpc as T
     if not LAGGED_ONLY:
-        adj, _w = T.cfc_tpc(X.T, maxdelay=1, alpha=0.05, isgauss=True)
+        adj, _w = T.cfc_tpc(X.T, maxdelay=1, alpha=0.05, isgauss=gauss)
         return (np.asarray(adj) != 0).astype(int)
     md, m = 1, X.shape[0]
     data_trans = T.data_transformed(X.T, md)
-    g = T._run_pc_inner(data_trans, 0.05, True)
+    g = T._run_pc_inner(data_trans, 0.05, gauss)
     ce = T.causaleff_ida(g, data_trans)
     lab = np.arange((md + 1) * m).reshape((m, md + 1))
     A = np.zeros((m, m), int); W = np.zeros((m, m))
@@ -91,14 +96,14 @@ def task(t):
             from sim_scm import simulate_extended
             from directed_metrics import compute_directed_metrics
             o = simulate_extended(reg, nz, 1000, s); X = o[0].astype(np.float64)
-            A = tpc_pkg(X); np.fill_diagonal(A, 0)
+            A = tpc_pkg(X, gauss=(TPC_TEST == 'gauss' or reg.startswith('lingauss'))); np.fill_diagonal(A, 0)
             _, gl_uw, gl_w, gc_uw, gc_w, gb_uw, gb_lw, gb_cw = o
             m = compute_directed_metrics(A, gl_w, gc_w, gb_lw, gb_cw, gl_uw, gc_uw, gb_uw)
             return ('ar', ['TPC', reg, nz, s, m['directed_TPR_strict'], m['directed_FPR_strict'], m['directed_CS_strict']])
         _, block, motif, s = t
         SH = 0.0 if block == 'control' else -1.5
         X, GTc, GTs = sim_spiking(s, motif, SH)
-        A = tpc_pkg(X)
+        A = tpc_pkg(X, gauss=(TPC_TEST == 'gauss'))
         return ('spk', [block, motif, s, cs_full(A, ((GTc + GTs) > 0).astype(int)),
                         float(np.mean([A[i, i] > 0 for i in range(P)]))])
     except Exception as e:                  # report, never silently drop
@@ -116,9 +121,9 @@ if __name__ == '__main__':
             {'ar': ar, 'spk': spk, 'err': err}[kind].append(row)
             if (k + 1) % 200 == 0:
                 print(f'{k + 1}/{len(tasks)} done, errors {len(err)}', flush=True)
-    with open(_out('table1_baselines', f"tpc_official{'_lagged' if LAGGED_ONLY else ''}_fig2.csv"), 'w', newline='') as f:
+    with open(_out('table1_baselines', f"tpc_official{'_lagged' if LAGGED_ONLY else ''}{'_np' if TPC_TEST == 'auto' else ''}_fig2.csv"), 'w', newline='') as f:
         w = csv.writer(f); w.writerow(['method', 'regime', 'noise', 'seed', 'TPR', 'FPR', 'CS']); w.writerows(sorted(ar, key=lambda r: (r[1], r[2], r[3])))
-    with open(_out('table1_baselines', f"tpc_official{'_lagged' if LAGGED_ONLY else ''}_spiking.csv"), 'w', newline='') as f:
+    with open(_out('table1_baselines', f"tpc_official{'_lagged' if LAGGED_ONLY else ''}{'_np' if TPC_TEST == 'auto' else ''}_spiking.csv"), 'w', newline='') as f:
         w = csv.writer(f); w.writerow(['block', 'cell', 'seed', 'cs', 'self_frac']); w.writerows(sorted(spk))
     for e in err: print('ERROR', e)
     import pandas as pd
