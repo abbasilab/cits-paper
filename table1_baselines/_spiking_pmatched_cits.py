@@ -3,7 +3,7 @@ full-graph CS (cross + self). Runs on GPU (device=cuda) or CPU. SH env toggles
 recurrence as in _spiking_pmatched_cpu.py."""
 import numpy as np, sys, os, warnings; warnings.filterwarnings('ignore')
 sys.path.insert(0,'.'); sys.path.insert(0,'/home/rbiswas1/repos/cits')
-from gpu_cits_lag_rcit import gpu_cits_lag_rcit
+from cits import cits_rcit  # cits >= 1.9.0 (pip install cits[rcit]); uncapped conditioning, as in the paper
 MOTIFS={'convergence':[(0,2),(1,2),(2,3)],'diamond':[(0,1),(0,2),(1,3),(2,3)],
         'chain':[(0,1),(1,2),(2,3)],'depression':[(0,2),(1,2),(2,3)]}
 SH=float(os.environ.get('SH','-1.5')); NS=int(os.environ.get('NS','50')); T=2000; p=4
@@ -34,7 +34,7 @@ for motif in ORDER:
     full=[]; self_=[]
     for s in range(NS):
         X,GTc,GTs=sim(s,motif); GTf=((GTc+GTs)>0).astype(int)
-        B=(np.asarray(gpu_cits_lag_rcit(X,alpha=0.05,tau=1,K=25,n_perm=100,max_cond_size=5,seed=s,device=DEV,null='gamma'))!=0).astype(int)
+        B=(np.asarray(cits_rcit(X,alpha=0.05,tau=1,K=25,max_cond_size=None,seed=s,device=DEV,null='gamma'))!=0).astype(int)
         full.append(cs(B,GTf)); self_.append(np.mean([B[i,i]>0 for i in range(p)]))
     print(motif,f"CSfull={np.mean(full):.3f}±{np.std(full):.3f} selfFrac={np.mean(self_):.2f}",flush=True)
 print(f"CITS PMATCHED {MODE} DONE",flush=True)
