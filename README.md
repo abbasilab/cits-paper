@@ -245,7 +245,7 @@ and does not feed the final figure.
 | Item | Script(s) | Inputs | Outputs | Command |
 |---|---|---|---|---|
 | `tab:tau_saturation_supp` (CS of CITS at τ = 1, 2, 3; 20 sims; GPU RCIT, \|S\| ≤ 5) | `supplement/tau_sensitivity_gpu.py` | `simulation_benchmark_fc_methods_v3.simulate_extended` | `<OUT>/supplement/simulation_results_directed_tau_sensitivity_gpu.csv` (the CTRNN rows are not tabulated) | `python tau_sensitivity_gpu.py` |
-| `tab:selfedge_supp` | the `_spiking_pmatched_*` runs in `table1_baselines/` | – | the `self` fractions in the table above (TPC 88% / 54% = mean over motifs; PCMCI+ 16%; LPCMCI 14%) | see Table 1 |
+| `tab:selfedge_supp` | the `_spiking_pmatched_*` runs in `table1_baselines/` | – | the `self` fractions (TPC 89% / 38% from `source_data/tpc_official_spiking.csv`, mean over motifs; PCMCI+ 16%; LPCMCI 14%) | see Table 1 |
 | `fig:scaling_supp` (runtime vs p at each N) | `supplement/_make_supp_figure.py` | `grid_v3.csv`, `grid_ext.csv` from `<OUT>/fig1_scaling/` (fallback `fig1_scaling/source_data/`) | `<OUT>/supplement/scaling_grid_supp.png`, `<OUT>/supplement/scaling_supp.{png,pdf}` | `python _make_supp_figure.py` |
 | `tab:cs_supp` (CS by method, N, p; mean of 3 seeds) | `supplement/make_tab_cs_supp.py` | `fig1_scaling/source_data/cits_scaling_aggregated.csv` | table body (LaTeX), identical to the paper | `python make_tab_cs_supp.py > tab_cs_supp.tex` |
 
