@@ -1,5 +1,5 @@
 """
-Per-area-pair EM synapse fraction on the Version B-safe universe.
+Per-area-pair EM synapse fraction on the contemporaneous-CITS universe.
 
 Same universe as the FC fig2 barplots and the within/between EM plot: 39 EM
 fields, matched units mapped to FC matrix indices, directed pairs (i != j, no
@@ -10,8 +10,8 @@ Pairs are pooled across fields for the point estimate; the ~39 fields are the
 cluster-bootstrap unit (N=5000) for the 95% CIs and pairwise significance.
 
 Outputs (fig2/):
-  em_areapair_synapse_versionBsafe.csv   per area-pair frac + CI + counts
-  em_areapair_synapse_versionBsafe.npz   bootstrap frac arrays (for brackets)
+  em_areapair_synapse.csv   per area-pair frac + CI + counts
+  em_areapair_synapse.npz   bootstrap frac arrays (for brackets)
 """
 import os
 import sys
@@ -160,8 +160,8 @@ def main():
 
     os.makedirs(OUTDIR, exist_ok=True)
     pd.DataFrame(rows).to_csv(
-        os.path.join(OUTDIR, 'em_areapair_synapse_versionBsafe.csv'), index=False)
-    np.savez(os.path.join(OUTDIR, 'em_areapair_synapse_versionBsafe.npz'),
+        os.path.join(OUTDIR, 'em_areapair_synapse.csv'), index=False)
+    np.savez(os.path.join(OUTDIR, 'em_areapair_synapse.npz'),
              boot=boot, pairs=np.array([f'{a}->{b}' for a, b in ALL_PAIRS]),
              n_fields=n_fields)
     print(f"\nSaved CSV + NPZ to {OUTDIR}")

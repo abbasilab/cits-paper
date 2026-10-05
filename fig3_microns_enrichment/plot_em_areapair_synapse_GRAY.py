@@ -2,7 +2,7 @@
 GRAY recreation of the arousal EM synaptic area-pair barplot (structure in
 neutral gray to pair with the color-coded stimulus FC figures). Identical to
 figures/plot_em_areapair_synapse_versionBsafe.py except EM_COLOR -> gray and a
-new output path; reads the same versionBsafe EM data.
+new output path; reads the same EM data.
 """
 import os
 import sys
@@ -13,9 +13,9 @@ from matplotlib.ticker import ScalarFormatter
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'shared')))
 from paths import out as _out, result
-# from bootstrap_em_areapair_synapse_versionBsafe.py (CSV also committed in source_data/; NPZ is not)
-CSV = result('fig3_microns_enrichment', 'em_areapair_synapse_versionBsafe.csv')
-NPZ = result('fig3_microns_enrichment', 'em_areapair_synapse_versionBsafe.npz')
+# from bootstrap_em_areapair_synapse.py (CSV also committed in source_data/; NPZ is not)
+CSV = result('fig3_microns_enrichment', 'em_areapair_synapse.csv')
+NPZ = result('fig3_microns_enrichment', 'em_areapair_synapse.npz')
 OUT = _out('fig3_microns_enrichment', 'em_areapair_synapse_GRAY.png')
 EM_COLOR = '#7a7a7a'  # neutral gray (structure)
 

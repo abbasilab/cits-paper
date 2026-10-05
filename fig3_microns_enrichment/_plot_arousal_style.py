@@ -117,7 +117,7 @@ def bootci(vals, B=N_BOOT):
 
 
 VAR_LABEL = {'A': 'Variant A  (CITS-GPU lagged)',
-             'B': 'Variant B  (CITS-GPU lagged + PC-contemporaneous, VersionB-safe)'}
+             'B': 'Variant B  (CITS-GPU lagged + PC-contemporaneous, LSCM refit)'}
 
 
 # ═════════════════════════════════════════════════════════════════════════════
@@ -513,7 +513,7 @@ def write_report():
               "(Friedman + Wilcoxon-FDR).",
               "- Single animal (MICrONS Minnie65); within-brain descriptive only.",
               "- Variant A = CITS-GPU lagged skeleton only; Variant B adds the "
-              "PC-contemporaneous edges + LSCM refit (VersionB-safe). Method is "
+              "PC-contemporaneous edges + LSCM refit. Method is "
               "decoupled from the arousal paper's union-neighbor CITS; see report.",
               "- Area-pairs with few contributing fields (e.g. rare cross-area "
               "combinations) have wide CIs and low-power Friedman tests; read those "

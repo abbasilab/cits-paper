@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-"""Pooled Version B (DIRECTED) FC for the Neuropixels stimtypes figure.
+"""Pooled contemporaneous CITS (DIRECTED) FC for the Neuropixels stimtypes figure.
 
-Canonical MICrONS Version B, pooled per stimulus (like stim_fc_pipeline):
+Canonical MICrONS contemporaneous CITS, pooled per stimulus (like stim_fc_pipeline):
 pool trials -> center per trial, W-align, concat -> cap at NCAP windows ->
-run Version B once:
+run contemporaneous CITS once:
   cuPC lagged (gpu_cits_lag_cupc_faithful, directed by time)
   + PC-contemporaneous (pc_skeleton_raw GPU) + v-structures ONLY (no Meek)
   + build_union + single LSCM refit (signed weights).
@@ -14,7 +14,7 @@ Outputs a DIRECTED union graph per stimulus, region-ordered 68-frame:
   cits_v2_pooledB_<stim>_w68.npy        (|LSCM weight|, signed magnitude)
   cits_v2_pooledB_summary.json
 
-Run: CUDA_VISIBLE_DEVICES=0 python _neuropixels_versionB_pooled.py [--ncap 400] [--stim S] [--validate]
+Run: CUDA_VISIBLE_DEVICES=0 python _neuropixels_contemp_pooled.py [--ncap 400] [--stim S] [--validate]
 """
 import os, sys, json, time, argparse
 import numpy as np
@@ -60,7 +60,7 @@ def pool_X(stim, units_idx, ncap):
     return X[:, :ncap * W]                                              # cap N windows
 
 
-def versionB_directed(X):
+def contemp_directed(X):
     """Return (dir_adj pxp int: i->j=1 undirected both, |LSCM| weights pxp)."""
     from gpu_cits_lag_cupc_faithful import gpu_cits_lag_cupc_faithful
     from _pc_raw import pc_skeleton_raw
@@ -103,7 +103,7 @@ def run(stim, ncap, validate=False):
     p = len(units_idx)
     X = pool_X(stim, units_idx, ncap)
     t0 = time.time()
-    dir_adj, Wt = versionB_directed(X)
+    dir_adj, Wt = contemp_directed(X)
     dt = time.time() - t0
     # counts
     A = dir_adj.astype(bool)
@@ -138,7 +138,7 @@ def main():
     ap.add_argument('--validate', action='store_true')
     args = ap.parse_args()
     stims = [args.stim] if args.stim else STIMS
-    summ = {'method': 'pooled Version B (cuPC lagged + PC-contemp, v-structures no Meek, '
+    summ = {'method': 'pooled contemporaneous CITS (cuPC lagged + PC-contemp, v-structures no Meek, '
                       'union + single LSCM), N-capped', 'ncap': args.ncap, 'stimuli': {}}
     for stim in stims:
         summ['stimuli'][stim] = run(stim, args.ncap, validate=args.validate)

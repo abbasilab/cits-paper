@@ -32,7 +32,7 @@ analyze("Lagged correlation (sc_enrichment_per_state_laggedcorr_max.csv, all)", 
 analyze("Conditional Granger GC2 (sc_enrichment_per_state_granger.csv, all)", 819, 214260, 2230, 618574)
 # --- within/between ---
 # within: a=w_syn=2656, n1=w_tot=432618 ; between: c=b_syn=393, n2=b_tot=400216
-analyze("Within-vs-between EM (sc_within_vs_between_synapse_versionBsafe.csv)", 2656, 432618, 393, 400216)
+analyze("Within-vs-between EM (sc_within_vs_between_synapse.csv)", 2656, 432618, 393, 400216)
 
 # ================= FIELD-CLUSTER BOOTSTRAP =================
 print("\n\n########## FIELD-CLUSTER BOOTSTRAP 95% CI (N=5000, seed=42) ##########")
@@ -69,11 +69,11 @@ def boot_within_between(df):
     ratios = np.array(ratios)
     return np.percentile(ratios, [2.5, 97.5]), n
 
-# CITS per-field (versionBsafe), state=all
+# CITS per-field (contemporaneous CITS), state=all
 df_cits = pd.read_csv(BASE+"sc_enrichment_perfield_versionBsafe.csv")
 df_cits_all = df_cits[df_cits['state']=='all']
 ci, n = boot_enrich(df_cits_all)
-print(f"CITS (perfield versionBsafe, all, {n} fields): bootstrap 95% CI = ({ci[0]:.4f}, {ci[1]:.4f})")
+print(f"CITS (perfield, contemporaneous CITS, all, {n} fields): bootstrap 95% CI = ({ci[0]:.4f}, {ci[1]:.4f})")
 
 # GC2 per-field (granger), state=all
 df_g = pd.read_csv(BASE+"sc_enrichment_perfield_granger.csv")
@@ -82,8 +82,8 @@ ci, n = boot_enrich(df_g_all)
 print(f"GC2 (perfield granger, all, {n} fields): bootstrap 95% CI = ({ci[0]:.4f}, {ci[1]:.4f})")
 
 # within/between per-field
-# produced by bootstrap_em_within_vs_between_versionBsafe.py (committed copy in source_data/)
-df_wb = pd.read_csv(result('fig3_microns_enrichment', "sc_within_vs_between_perfield_versionBsafe.csv"))
+# produced by bootstrap_em_within_vs_between.py (committed copy in source_data/)
+df_wb = pd.read_csv(result('fig3_microns_enrichment', "sc_within_vs_between_perfield.csv"))
 ci, n = boot_within_between(df_wb)
 print(f"Within/between (perfield, {n} fields): bootstrap 95% CI = ({ci[0]:.4f}, {ci[1]:.4f})")
 

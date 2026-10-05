@@ -5,14 +5,14 @@ Fig 3 panel B — spatial CFC (statistically-causal functional circuitry) networ
 graph for the CLIP stimulus. Same style / layout / draw functions as the arousal
 version (exp_analysis/figures/plot_example_fields_2d_versionBsafe.py). The ONLY
 change is the FC adjacency source: instead of the arousal CSV, we use the CLIP
-stimulus Version-B FC (fcB) staged per field.
+stimulus contemporaneous-CITS FC (fcB) staged per field.
 
 Layout: 4 panels — fields 3,4 (Depth = 320 µm) and fields 5,6 (Depth = 450 µm),
 s8/sc9.
 
 Neuron ordering (CRITICAL): fcB rows/cols are over the stimulus pipeline's
 per-field union-neuron set, sorted by unit ID. We reconstruct that exact ordering
-via nids_for_field() (from panelA_fc_em_enrichment_versionB.py) and index
+via nids_for_field() (from panelA_fc_em_enrichment.py) and index
 coords / areas by those IDs in the same order, so edges align with positions.
 Verified: arousal field-neuron set == fcB ID set for fields 3-6, so a sort by
 unit ID also aligns; we use the fcB nids ordering directly regardless.
@@ -33,7 +33,7 @@ from scipy.spatial import ConvexHull
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'shared')))
 from paths import out as _out, OUT_ROOT, microns_saves, microns_meta
-# Version-B FC written by stim_run.py (was staged from gpu-2 into a session scratchpad);
+# contemporaneous-CITS FC written by stim_run.py (was staged from gpu-2 into a session scratchpad);
 # calcium metadata (ids/fields/unionids) from data_prep/ in $MICRONS_SAVES/calcium_npy.
 FCDIR  = os.path.join(OUT_ROOT, 'fig3_microns_enrichment', 'out', 'fc')
 NPYDIR = microns_saves('calcium_npy')

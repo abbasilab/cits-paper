@@ -1,5 +1,5 @@
 """Aggregate the 2-variant stimulus FC sweep -> within/between + area-pair figures.
-Variant A = cits-gpu (cuPC) lagged + LSCM weights. Variant B = VersionB-safe with cits-gpu.
+Variant A = cits-gpu (cuPC) lagged + LSCM weights. Variant B = contemporaneous CITS with cits-gpu.
 Per stimulus (Clip/Monet/Trippy): mean + field-bootstrap 95% CI (descriptive), and paired
 within-field stats across the 124 fields: Friedman omnibus + pairwise Wilcoxon (FDR-BH)."""
 import numpy as np, pandas as pd

@@ -24,7 +24,7 @@ ran from the committed `source_data/` into a temporary `CITS_PAPER_OUT`. The reg
 - Reads of intermediates produced by another script of this repo: the producer's output path
   (`paths.result`), falling back to the committed `source_data/` copy (or, where noted, to the
   author's original location under a data root).
-- Session-scratchpad paths (`/tmp/claude-1004/...`) are gone. Staged Version-B FC is read from
+- Session-scratchpad paths (`/tmp/claude-1004/...`) are gone. Staged contemporaneous-CITS FC is read from
   `stim_run.py`'s output `<OUT>/fig3_microns_enrichment/out/fc/`; staged calcium metadata from
   `$MICRONS_SAVES/calcium_npy/`; per-field CSVs from the producing scripts' outputs (fallback
   `source_data/`); scratch PNGs of `regen_cfc_stimtypes.py` go to `<OUT>/fig5_neuropixels/panels/`.
@@ -70,8 +70,8 @@ table1_baselines: `_sd_ar_lingauss_cupc.py`, `_sd_assemble.py`, `_sd_gpu2_rcit.p
 `source_data/`), `plot_spiking_motifs.py`.
 
 fig3_microns_enrichment: `_plot_arousal_style.py`, `aggregate_and_plot.py`,
-`bootstrap_em_areapair_synapse_versionBsafe.py`, `bootstrap_em_within_vs_between_versionBsafe.py`,
-`corr_l0l1_final.py`, `fig3A_enrichment_stimulus.py`, `panelA_fc_em_enrichment_versionB.py`,
+`bootstrap_em_areapair_synapse.py`, `bootstrap_em_within_vs_between.py`,
+`corr_l0l1_final.py`, `fig3A_enrichment_stimulus.py`, `panelA_fc_em_enrichment.py`,
 `panelA_perfield.py`, `plot_em_areapair_synapse_GRAY.py`, `plot_fig3B_cfc_spatial_clip.py`,
 `plot_sc_within_vs_between_GRAY.py`, `stim_aggregate.py`, `stim_baseline_enrichment.py`,
 `stim_fc_pipeline.py`, `stim_run.py`, `task6.py`, `task9.py`; `data_prep/_convert_merged.py`,
@@ -84,7 +84,7 @@ fig4_motifs: `plot_motif_examples_scatter_v2.py`, `plot_motif_population_v2.py`,
 (also reads `script copy.ipynb` relative to its own folder), `legacy/script copy.ipynb`.
 
 fig5_neuropixels: `_montage_cc_cits.py`, `_montage_cc_gc2.py`, `_montage_sig_magnitude.py`,
-`_neuropixels_versionB_pooled.py`, `_stimtypes_90swin_compute.py`, `_verify_fig5_stats.py`,
+`_neuropixels_contemp_pooled.py`, `_stimtypes_90swin_compute.py`, `_verify_fig5_stats.py`,
 `regen_cfc_stimtypes.py`, `render_fine_ccsig.py`, `task7.py`, `notebooks/neuropixels_testresults.py`
 (CRLF line endings kept), `notebooks/script.ipynb`, `notebooks/script_matchbarplot.ipynb`,
 `legacy/scc_clustering.ipynb`.

@@ -128,7 +128,7 @@ def get_clustered_circle_positions_grouped(labels, min_spacing=6, base_cluster_r
 
 
 def load_stim_edge_data():
-    """Directed Version B. An arrow i->j is drawn when it is present (as i->j OR
+    """Directed contemporaneous CITS. An arrow i->j is drawn when it is present (as i->j OR
     i<->j) in >= MIN_STABILITY of the 60 trials (cits_v2_directedB_*_fwd68.npy).
     Bidirectional pairs (both directions >= threshold) render as two arrows.
     avg = |LSCM weight| (thickness); stab = directional stability (transparency)."""
@@ -161,7 +161,7 @@ def load_stim_edge_data():
 # ----------------------------------------------------------------------------
 def render_graph(stim, avg_perm, stab_perm, dir_perm, pos, gmin, gmax, out_png):
     # Reproducible edges (per-trial >=80% presence). Direction from the high-power
-    # POOLED Version B graph: draw an arrow where the pooled CFC orients the edge
+    # POOLED contemporaneous-CITS graph: draw an arrow where the pooled CFC orients the edge
     # (i->j and not j->i), otherwise an undirected line. Thickness ~ |LSCM weight|,
     # transparency ~ per-trial stability.
     n = len(unit_labels_permuted)

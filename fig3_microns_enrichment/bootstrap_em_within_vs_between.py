@@ -1,8 +1,8 @@
 """
-Within-area vs between-area synapse fraction on the Version B-safe universe.
+Within-area vs between-area synapse fraction on the contemporaneous-CITS universe.
 
 EM anatomy is method-independent, but this restricts to the SAME pair universe as
-the versionBsafe FC-present/absent enrichment so the two fig1_sc panels are
+the contemporaneous-CITS FC-present/absent enrichment so the two fig1_sc panels are
 comparable: the 39 EM-coregistration fields, matched units mapped to the FC
 matrix indices, directed pairs (i != j), synapses_..._v1718, cellwise counting.
 
@@ -11,7 +11,7 @@ within-area (same area) or between-area (different area) and scored for a synaps
 Pairs are pooled across fields for the point estimate; the ~39 fields are the
 cluster-bootstrap unit (N=5000) for the 95% CI.
 
-Output (fig1_sc/): sc_within_vs_between_synapse_versionBsafe.csv
+Output (fig1_sc/): sc_within_vs_between_synapse.csv
 """
 import os
 import sys
@@ -161,9 +161,9 @@ def main():
     print(f"  ratio (within/between) = {ratio:.2f}  [{rt_lo:.2f},{rt_hi:.2f}]")
 
     os.makedirs(OUTDIR, exist_ok=True)
-    out = os.path.join(OUTDIR, 'sc_within_vs_between_synapse_versionBsafe.csv')
+    out = os.path.join(OUTDIR, 'sc_within_vs_between_synapse.csv')
     pd.DataFrame([row]).to_csv(out, index=False)
-    pf.to_csv(os.path.join(OUTDIR, 'sc_within_vs_between_perfield_versionBsafe.csv'),
+    pf.to_csv(os.path.join(OUTDIR, 'sc_within_vs_between_perfield.csv'),
               index=False)
     print(f"\nSaved: {out}")
 

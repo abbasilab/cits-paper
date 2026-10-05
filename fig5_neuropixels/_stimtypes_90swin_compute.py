@@ -1,16 +1,16 @@
 #!/usr/bin/env python3
 """Consistency over many 90 s windows (matching Fig 5A's window size), unsmoothed 10 ms.
 Concatenate all presentations (raw P, unsmoothed), tile into non-overlapping 90 s windows
-(~9000 bins each), run directed Version B on each window, and aggregate presence/direction.
+(~9000 bins each), run directed contemporaneous CITS on each window, and aggregate presence/direction.
 Each window has ~9000 bins (high power, like 5A), so consistency across them is meaningful.
 Outputs cits_v2_directedB_W90WIN_<stim>_{fwd,w,pboot}68.npy."""
 import os, sys, numpy as np, pickle as pkl, time
 AD = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'shared'))   # repo shared/ (was analysis/functional_circuitry)
-# this folder holds _neuropixels_versionB_pooled.py (was CITS_manuscript/figures)
+# this folder holds _neuropixels_contemp_pooled.py (was CITS_manuscript/figures)
 for p_ in (AD, os.path.dirname(os.path.abspath(__file__))):
     if p_ not in sys.path:
         sys.path.insert(0, p_)
-from _neuropixels_versionB_pooled import versionB_directed, permute, unit_to_union
+from _neuropixels_contemp_pooled import contemp_directed, permute, unit_to_union
 from paths import outdir as _outdir, neuropixels
 
 SESS, DATA = 791319847, neuropixels()   # was citsproject/data
@@ -34,7 +34,7 @@ for stim in STIMS:
         Xw = Dsub[w * WBINS:(w + 1) * WBINS]
         Xc = Xw - Xw.mean(0)
         t0 = time.time()
-        dir_adj, W = versionB_directed(Xc.T)
+        dir_adj, W = contemp_directed(Xc.T)
         for i in range(p):
             ui = unit_to_union.get(gids[i])
             if ui is None:

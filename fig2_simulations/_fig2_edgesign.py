@@ -3,7 +3,7 @@ For each true edge, regress the child (current) on its parents (past) + self-his
 in the time-windowed data; the coefficient of the parent is the CITS (LSCM) edge
 weight. Sign = sign(median weight), reported only where the weight is significantly
 != 0 (OLS t-test) in most datasets; else 'sign n/a' (single-dataset-valid rule).
-This is the same signed-LSCM convention used by the neural (Version B) pipeline."""
+This is the same signed-LSCM convention used by the neural (contemporaneous CITS) pipeline."""
 import numpy as np, sys, os, json, warnings; warnings.filterwarnings('ignore')
 sys.path.insert(0,'.'); sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'shared')))
 from paths import out as _out

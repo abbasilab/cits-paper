@@ -4,7 +4,7 @@ stim_fc_pipeline.py  (runs on gpu-2)
 Stimulus-type FC (Clip/Monet/Trippy), TWO variants, per (session,scan,field,stimulus):
   Variant A: cuPC lagged skeleton (gpu_cits_lag_cupc_faithful) + LSCM weights
              (cits.methods.causaleff_lscm + cits_weighted_rolled, thresh |w|<max/10).
-  Variant B: VersionB-safe with cuPC lagged  = cuPC rolled B as the lagged parent
+  Variant B: contemporaneous CITS with cuPC lagged  = cuPC rolled B as the lagged parent
              identity + PC-contemporaneous (pc_skeleton_raw, GPU) + orient v-structures
              only (NO_MEEK) + build_union + lscm_refit_cpdag once per child.
 
@@ -155,7 +155,7 @@ def fc_variant_A(X):
     return ce_B
 
 def fc_variant_B(X, cits_B_binary, tag=""):
-    """VersionB-safe with cuPC lagged: cuPC B = lagged parent identity + PC-contemp
+    """Contemporaneous CITS with cuPC lagged: cuPC B = lagged parent identity + PC-contemp
     (NO_MEEK) + union + lscm refit -> signed weighted (p,p). Per-step timed."""
     from _pc_raw import pc_skeleton_raw
     from _pc_orientation import orient_v_structures

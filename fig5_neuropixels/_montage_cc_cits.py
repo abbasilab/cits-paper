@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Align Fig 5A CITS column to the SAME data construction as 5B/C: unsmoothed 10 ms,
-concatenated presentations, first 90 s window. Version B, SIGNED LSCM weights.
+concatenated presentations, first 90 s window. contemporaneous CITS, SIGNED LSCM weights.
 Outputs cmp_cc_<stim>_CITS_68.npy (cc = concatenated-presentation window)."""
 import os, sys, numpy as np, pickle as pkl
 # repo shared/ (was analysis/functional_circuitry) and this folder (was CITS_manuscript/figures)

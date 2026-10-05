@@ -1,9 +1,9 @@
 """
 Stimulus-provenance FC-EM enrichment for the two BASELINE estimators
 (lagged-correlation and conditional-Granger GC2), computed on the SAME stimulus
-calcium input that fed the CITS Version-B stimulus FC (fcB), with the SAME EM
+calcium input that fed the CITS contemporaneous stimulus FC (fcB), with the SAME EM
 fields, neurons, preprocessing (build_pooled + N_B_MAX cap), FC-present union
-across the 3 stimulus graphs, and EM pairing as panelA_fc_em_enrichment_versionB.py.
+across the 3 stimulus graphs, and EM pairing as panelA_fc_em_enrichment.py.
 
 Only the FC ESTIMATOR differs:
   - 'lagged1' : directed lagged Pearson, lag=1, Fisher-z + BH-FDR<0.05
@@ -30,7 +30,7 @@ from paths import outdir as _outdir, OUT_ROOT, MICRONS_SAVES, arousal_figs
 SAVES = os.path.join(MICRONS_SAVES, '')
 NPY = f'{SAVES}calcium_npy'
 EM_KEYS_NPZ = arousal_figs('2026-04-29', 'fig4', 'bootstrap_sf_correlation_13sess.npz')
-# Version-B FC written by stim_run.py (was staged from gpu-2 into a session scratchpad)
+# contemporaneous-CITS FC written by stim_run.py (was staged from gpu-2 into a session scratchpad)
 STAGE_FC = os.path.join(OUT_ROOT, 'fig3_microns_enrichment', 'out', 'fc')
 OUTDIR = _outdir('fig3_microns_enrichment')
 STIMS = ['clip', 'Monet', 'Trippy']

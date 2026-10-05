@@ -2,7 +2,7 @@
 GRAY recreation of the arousal Fig 1 within-vs-between EM synapse plot (structure
 in neutral gray to pair with the color-coded stimulus FC figures). Identical to
 figures/plot_sc_within_vs_between_versionBsafe.py except EM_COLOR -> gray and a
-new output path; reads the same versionBsafe data.
+new output path; reads the same data.
 """
 import os
 import sys
@@ -24,8 +24,8 @@ def scientific_yaxis(ax):
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'shared')))
 from paths import out as _out, result
-# from bootstrap_em_within_vs_between_versionBsafe.py (committed copy in source_data/)
-CSV = result('fig3_microns_enrichment', 'sc_within_vs_between_synapse_versionBsafe.csv')
+# from bootstrap_em_within_vs_between.py (committed copy in source_data/)
+CSV = result('fig3_microns_enrichment', 'sc_within_vs_between_synapse.csv')
 OUT = _out('fig3_microns_enrichment', 'sc_within_vs_between_synapse_GRAY.png')
 
 EM_COLOR = '#7a7a7a'   # neutral gray (structure)

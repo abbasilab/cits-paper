@@ -1,12 +1,12 @@
 """
-Fig 7 panel A (single-method, OUR cits-gpu Version B).
+Fig 7 panel A (single-method, OUR cits-gpu contemporaneous CITS).
 
 FC-presence vs EM-based synaptic connectivity, pooled overall across the 3
-stimuli. Mirrors the arousal versionBsafe enrichment
+stimuli. Mirrors the arousal contemporaneous-CITS enrichment
 (analysis/functional_circuitry/bootstrap_sc_enrichment_per_state_versionBsafe.py,
 state='all'): same EM field keys, matched-df units mapped to FC matrix indices,
 directed pairs (i != j), cellwise counting, field-cluster bootstrap (N=5000) for
-the fold CI. The ONLY change: the FC edge set is our stimulus Version-B fcB
+the fold CI. The ONLY change: the FC edge set is our stimulus contemporaneous-CITS fcB
 (cuPC lagged + PC-contemporaneous + union + LSCM refit), unioned over the 3
 stimulus graphs per field (= the mean|FC|!=0 'all' analog).
 
@@ -28,13 +28,13 @@ from statsmodels.stats.proportion import proportion_confint
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'shared')))
 from paths import out as _out, OUT_ROOT, MICRONS_SAVES, microns_saves, arousal_figs
 
-# Version-B FC written by stim_run.py (was staged from gpu-2 into a session scratchpad);
+# contemporaneous-CITS FC written by stim_run.py (was staged from gpu-2 into a session scratchpad);
 # calcium metadata (ids/fields/unionids) from data_prep/ in $MICRONS_SAVES/calcium_npy.
 FCDIR, NPYDIR = os.path.join(OUT_ROOT, 'fig3_microns_enrichment', 'out', 'fc'), microns_saves('calcium_npy')
 SAVES = os.path.join(MICRONS_SAVES, '')
 EM_KEYS_NPZ = arousal_figs('2026-04-29', 'fig4', 'bootstrap_sf_correlation_13sess.npz')
-OUT_PNG = _out('fig3_microns_enrichment', 'panelA_fc_em_enrichment_versionB.png')
-OUT_CSV = _out('fig3_microns_enrichment', 'panelA_fc_em_enrichment_versionB.csv')
+OUT_PNG = _out('fig3_microns_enrichment', 'panelA_fc_em_enrichment.png')
+OUT_CSV = _out('fig3_microns_enrichment', 'panelA_fc_em_enrichment.csv')
 STIMS = ['clip', 'Monet', 'Trippy']
 FC_COLOR = '#0072B2'   # Okabe-Ito blue (FC-present); colorblind-safe, distinct from B-E trio
 ABS_COLOR = '#b8b8b8'
