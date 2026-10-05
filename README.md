@@ -310,7 +310,7 @@ GPU:
 **Note on directory and file names.** Some data directories and files written by the original
 analysis runs (for example `cits_plus_pc_versionBsafe_2026-05-28/` and
 `2026-06-01_versionBsafe/`) carry an internal label from development. They are named verbatim
-here so the paths resolve; the label means CITS with contemporaneous edges (`cits.cits_contemporaneous`).
+here so the paths resolve. The label means CITS with contemporaneous edges (`cits.cits_contemporaneous`).
 Scripts and outputs created by this repository use descriptive names (see `RENAMES_2026-10-05.md`).
 
 ## Environment variables
